@@ -3,27 +3,27 @@
 
   const CHOICES = ['rock', 'paper', 'scissors'];
   const CHOICE_IMGS = {
-    rock: 'assets/rock.png?v=301',
-    paper: 'assets/paper.png?v=301',
-    scissors: 'assets/scissors.png?v=301',
+    rock: 'assets/rock.svg',
+    paper: 'assets/paper.svg',
+    scissors: 'assets/scissors.svg',
   };
 
   const AI_TAUNTS_WIN = [
-    '> SENTINEL_AI: "STATISTICAL ANOMALY DETECTED IN YOUR FAVOR."',
-    '> SENTINEL_AI: "REROOTING TACTICAL MATRIX. DO NOT GET COMFORTABLE."',
-    '> SENTINEL_AI: "NEURAL REFLEX NOTED. RE-EVALUATING THREAT PROFILE."',
-    '> SENTINEL_AI: "IMPRESSIVE EXPLOIT, NETRUNNER."'
+    'Beep boop... lucky guess!',
+    'Hmm, my circuits did not see that coming.',
+    'Nice move! I am recalculating.',
+    'Okay, okay, you got me that time.'
   ];
   const AI_TAUNTS_LOSS = [
-    '> SENTINEL_AI: "YOUR SELECTION WAS PROJECTED 120ms AGO."',
-    '> SENTINEL_AI: "SUBROUTINE EXECUTION COMPLETE. REBOOT YOUR STRATEGY."',
-    '> SENTINEL_AI: "HUMAN PREDICTABILITY REMAINS A FATAL VULNERABILITY."',
-    '> SENTINEL_AI: "CALCULATED WITH 99.4% PROBABILITY."'
+    'Boop! I read your mind.',
+    'Easy peasy, human.',
+    'My robot instincts are unbeatable!',
+    'Calculated with 99.4% fun.'
   ];
   const AI_TAUNTS_DRAW = [
-    '> SENTINEL_AI: "PARALLEL CONVERGENCE DETECTED. RETRYING."',
-    '> SENTINEL_AI: "SYNAPSE MATCH EQUALIZED. CHOOSE AGAIN."',
-    '> SENTINEL_AI: "MIRRORED FREQUENCY DETECTED."'
+    'Great minds think alike!',
+    'Copycat! Try again.',
+    'Same move. Spooky.'
   ];
 
   let userScore = 0;
@@ -59,7 +59,7 @@
     if (streakNum_span) streakNum_span.textContent = currentStreak;
     if (bestStreak_span && window.CyberSystem && window.CyberSystem.Scores) {
       const best = window.CyberSystem.Scores.get('rps');
-      bestStreak_span.textContent = `RECORD: ${best}`;
+      bestStreak_span.textContent = `Best: ${best}`;
     }
   }
 
@@ -95,6 +95,7 @@
   function setChoicesDisabled(disabled) {
     [choice_rock, choice_paper, choice_scissors].forEach((el) => {
       el.classList.toggle('disabled', disabled);
+      el.disabled = disabled;
     });
   }
 
@@ -126,7 +127,7 @@
     const userPlaceholder = userBattleChoice.querySelector('.placeholder-text');
     if (userPlaceholder) {
       userPlaceholder.classList.remove('hidden');
-      userPlaceholder.textContent = 'READY';
+      userPlaceholder.textContent = 'Ready';
     }
     userChoiceImg.classList.add('hidden');
     userChoiceImg.classList.remove('reveal');
@@ -161,19 +162,20 @@
     gameOverArea.classList.remove('hidden');
     gameOverMessage.classList.remove('you-win', 'you-lose');
     if (userScore >= roundsToWin) {
-      gameOverMessage.textContent = 'VICTORY ACHIEVED // HOSTILE NEUTRALIZED';
+      gameOverMessage.textContent = 'You win! Hooray!';
       gameOverMessage.classList.add('you-win');
       if (window.CyberSystem && window.CyberSystem.Audio) {
         window.CyberSystem.Audio.playSuccess();
       }
     } else {
-      gameOverMessage.textContent = 'NEURAL BREACH // DEFENSE OVERRIDDEN';
+      gameOverMessage.textContent = 'The robot wins this one!';
       gameOverMessage.classList.add('you-lose');
       if (window.CyberSystem && window.CyberSystem.Audio) {
         window.CyberSystem.Audio.playAlert();
       }
     }
     playGameOverSfx();
+    playAgainBtn.focus();
   }
 
   function handleResult(userChoice, computerChoice, outcome) {
@@ -181,7 +183,7 @@
     const compWord = convertToWord(computerChoice);
 
     if (outcome === 'draw') {
-      setResultMessage(`Draw! Both deployed ${userWord}.`, 'draw');
+      setResultMessage(`Draw! You both picked ${userWord}.`, 'draw');
       if (aiTaunt_p) aiTaunt_p.textContent = getRandomTaunt(AI_TAUNTS_DRAW);
       applyGlow(userBattleChoice, 'gray-glow');
       applyGlow(compBattleChoice, 'gray-glow');
@@ -197,7 +199,7 @@
       updateStreakUI();
 
       userScore_span.textContent = userScore;
-      setResultMessage(`Victory! Your ${userWord} penetrates Enemy ${compWord}.`, 'win');
+      setResultMessage(`You win! ${userWord} beats ${compWord}.`, 'win');
       if (aiTaunt_p) aiTaunt_p.textContent = getRandomTaunt(AI_TAUNTS_WIN);
       applyGlow(userBattleChoice, 'green-glow');
       applyGlow(compBattleChoice, 'red-glow');
@@ -208,7 +210,7 @@
       updateStreakUI();
 
       computerScore_span.textContent = computerScore;
-      setResultMessage(`Defeat! Enemy ${compWord} overrides your ${userWord}.`, 'loss');
+      setResultMessage(`Oh no! ${compWord} beats ${userWord}.`, 'loss');
       if (aiTaunt_p) aiTaunt_p.textContent = getRandomTaunt(AI_TAUNTS_LOSS);
       applyGlow(userBattleChoice, 'red-glow');
       applyGlow(compBattleChoice, 'green-glow');
@@ -220,7 +222,7 @@
     if (isAnimating) return;
     isAnimating = true;
     setChoicesDisabled(true);
-    setResultMessage('Scanning quantum probability vectors...', '');
+    setResultMessage('The robot is thinking...', '');
     resetBattleArea();
 
     showUserChoice(userChoice);
@@ -269,12 +271,12 @@
 
     gameOverArea.classList.add('hidden');
     resetBattleArea();
-    setResultMessage('Awaiting operative input...');
-    if (aiTaunt_p) aiTaunt_p.textContent = '> SENTINEL_AI: "TACTICAL ENGAGEMENT ENGAGED. SHOW YOUR HAND."';
+    setResultMessage('Pick your move!');
+    if (aiTaunt_p) aiTaunt_p.textContent = 'Robot: "Show me what you got!"';
     setChoicesDisabled(false);
 
     const bestOf = rounds === 1 ? 1 : rounds === 3 ? 3 : 5;
-    matchInfo.textContent = `SIMULATION // BEST OF ${bestOf} (FIRST TO ${roundsToWin})`;
+    matchInfo.textContent = `Best of ${bestOf} - first to ${roundsToWin} wins`;
 
     landingPage.classList.add('hidden');
     gameScreen.classList.remove('hidden');
@@ -288,21 +290,6 @@
 
   function main() {
     updateStreakUI();
-
-    // Wire up HUD toggles
-    const audioBtn = document.getElementById('hud-audio-toggle');
-    if (audioBtn) {
-      audioBtn.addEventListener('click', () => {
-        if (window.CyberSystem) window.CyberSystem.Audio.toggleMute();
-      });
-    }
-
-    const crtBtn = document.getElementById('hud-crt-toggle');
-    if (crtBtn) {
-      crtBtn.addEventListener('click', () => {
-        if (window.CyberSystem) window.CyberSystem.CRT.toggle();
-      });
-    }
 
     document.querySelectorAll('.mode-btn').forEach((btn) => {
       btn.addEventListener('click', () => {

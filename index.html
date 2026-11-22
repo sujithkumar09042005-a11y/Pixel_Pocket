@@ -1,145 +1,123 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. -->
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cyberpunk Game Hub - Neural gaming sprawl with hacked terminal simulations and retro-futuristic arcade challenges.">
-    <title>CYBER // HUB - Neural Arcade Sprawl</title>
-    <!-- Master Cyber Hub Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png?v=401">
-    <link rel="icon" type="image/png" sizes="64x64" href="assets/favicon-64x64.png?v=401">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/favicon-192x192.png?v=401">
-    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png?v=401">
-    <link rel="shortcut icon" href="favicon.ico?v=401">
-    <link rel="stylesheet" href="cyberpunk-core.css">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="description" content="Toy Box Arcade - a playroom of four quick browser games on a chunky toy console. Light and dark themes.">
+    <meta name="theme-color" content="#fff1d6">
+    <meta property="og:title" content="Toy Box Arcade">
+    <meta property="og:description" content="Four quick browser games on a chunky toy console. Pick a cartridge and play.">
+    <meta property="og:type" content="website">
+    <title>Toy Box Arcade</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="preload" href="fonts/fredoka.woff2" as="font" type="font/woff2" crossorigin>
+    <script>
+        // Set the theme before first paint to avoid a flash
+        (function () {
+            try {
+                var t = localStorage.getItem('toybox_theme');
+                if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.dataset.theme = t;
+                var s = localStorage.getItem('toybox_shell');
+                if (s) document.documentElement.dataset.shell = s;
+            } catch (e) { }
+        })();
+    </script>
+    <link rel="stylesheet" href="toybox.css">
+    <link rel="stylesheet" href="hub.css">
 </head>
 
-<body class="cyber-theme cyber-grid-bg cyber-scanlines">
-    <!-- Cyberpunk Reticle & HUD Cursor -->
-    <div class="cyber-reticle" id="cyber-reticle">
-        <div class="reticle-corner top-left"></div>
-        <div class="reticle-corner top-right"></div>
-        <div class="reticle-corner bottom-left"></div>
-        <div class="reticle-corner bottom-right"></div>
-    </div>
-    <div class="cursor-dot" id="cursor-dot"></div>
+<body>
+    <a class="skip-link" href="#games">Skip to games</a>
 
-    <!-- HUD Top Status Bar -->
-    <header class="hud-statusbar">
-        <div class="hud-stat-item">
-            <img src="assets/cyber-hub-icon.png?v=401" alt="Hub Core" class="hud-logo-mini">
-            <span class="hud-label">SYS_STATUS:</span>
-            <span class="hud-value neon-green">ONLINE // ACTIVE</span>
-        </div>
-        <div class="hud-stat-item hide-mobile">
-            <span class="hud-label">NEURAL_FEED:</span>
-            <span class="hud-value neon-cyan">OVERCLOCK_800MHz</span>
-        </div>
-        <div class="hud-stat-item">
-            <!-- HUD Interactive Control Toggles -->
-            <button id="hud-audio-toggle" class="hud-toggle-btn hud-audio-toggle" title="Toggle Synth Sound FX">[VOL: ON]</button>
-            <button id="hud-crt-toggle" class="hud-toggle-btn hud-crt-toggle" title="Toggle CRT Scanline Overlay">[CRT: ON]</button>
+    <header class="topbar">
+        <a class="brand" href="index.html" aria-label="Toy Box Arcade home">
+            <svg class="brand-mark" aria-hidden="true"><use href="assets/icons.svg#i-brand"></use></svg>
+            <span>Toy Box</span>
+        </a>
+        <div class="topbar-actions">
+            <button type="button" class="toy-btn toy-btn--ghost icon-btn" id="shell-btn" aria-label="Change console color" title="Change console color">
+                <svg aria-hidden="true"><use href="assets/icons.svg#i-paint"></use></svg>
+            </button>
+            <button type="button" class="toy-btn toy-btn--ghost icon-btn hud-audio-toggle" aria-label="Sound" aria-pressed="true" title="Sound on / off">
+                <svg aria-hidden="true"><use href="assets/icons.svg#i-sound"></use></svg>
+            </button>
+            <button type="button" class="theme-switch" data-theme-toggle role="switch" aria-checked="false" aria-label="Dark mode" title="Light / dark mode">
+                <svg class="ts-icon ts-sun" aria-hidden="true"><use href="assets/icons.svg#i-sun"></use></svg>
+                <svg class="ts-icon ts-moon" aria-hidden="true"><use href="assets/icons.svg#i-moon"></use></svg>
+                <span class="ts-knob"></span>
+            </button>
         </div>
     </header>
 
-    <main class="container">
-        <!-- Hero Header with Chromatic Glitch -->
-        <header class="header">
-            <div class="hub-emblem-wrapper">
-                <img src="assets/cyber-hub-icon.png?v=401" alt="CYBER // HUB Master Core" class="hub-master-emblem">
+    <main>
+        <section class="game-console hub-console" id="console" style="--gc-w: 860px" aria-labelledby="hub-title">
+            <div class="console-head">
+                <span class="plate"><span class="led" aria-hidden="true"></span>Toy Box 4-in-1</span>
+                <span class="plate" aria-hidden="true">Mk. II</span>
             </div>
-            <div class="header-pretitle cyber-badge">NETRUNNER PORTAL // SECTOR-04</div>
-            <h1 class="glitch-title cyber-glitch" data-text="CYBER//HUB">CYBER<span class="highlight">//HUB</span></h1>
-            <p class="subtitle">> SELECT_SIMULATION_PROTOCOL<span class="cyber-cursor-blink"></span></p>
-        </header>
-
-        <!-- Cyberpunk Holographic Game Pods -->
-        <section class="games-grid" aria-label="Game Simulations">
-            <!-- Game 1: Memory -->
-            <a href="Games/Project_Memory/index.html" class="game-card cyber-chamfer card-green" data-game="memory">
-                <div class="card-corner-tag">MOD_01</div>
-                <div class="card-content">
-                    <div class="icon-wrapper">
-                        <img src="Games/Project_Memory/assets/memory-icon.png?v=302" alt="Neural Sync Cyber Emblem" class="game-card-icon icon-green">
+            <div class="bezel">
+                <div class="screen hub-screen" id="hub-screen" aria-live="polite">
+                    <div class="screen-faces" aria-hidden="true">
+                        <span class="face f1"></span><span class="face f2"></span><span class="face f3"></span>
                     </div>
-                    <h2>NEURAL SYNC</h2>
-                    <p class="card-desc">Cognitive sequence decryption under escalating clock speed.</p>
-                    <div class="card-footer">
-                        <span class="card-chip" id="record-memory">RECORD: LVL 0</span>
-                        <span class="card-action">EXECUTE &rarr;</span>
-                    </div>
+                    <h1 id="hub-title">Pick a cartridge!</h1>
+                    <p id="hub-desc">Four tiny games. Hover or tap a cartridge, then push it into the slot.</p>
+                    <p class="hub-record" id="hub-record" hidden></p>
                 </div>
-                <div class="card-scan-line"></div>
-            </a>
-
-            <!-- Game 2: Rock Paper Scissors -->
-            <a href="Games/Project_RPS/index.html" class="game-card cyber-chamfer card-magenta" data-game="rps">
-                <div class="card-corner-tag">MOD_02</div>
-                <div class="card-content">
-                    <div class="icon-wrapper">
-                        <img src="Games/Project_RPS/assets/rps-icon.png?v=401" alt="Combat Sim Cyber Emblem" class="game-card-icon icon-magenta">
-                    </div>
-                    <h2>COMBAT SIM</h2>
-                    <p class="card-desc">Cybernetic prediction battle against rogue tactical subroutines.</p>
-                    <div class="card-footer">
-                        <span class="card-chip" id="record-rps">BEST STREAK: 0</span>
-                        <span class="card-action">ENGAGE &rarr;</span>
-                    </div>
-                </div>
-                <div class="card-scan-line"></div>
-            </a>
-
-            <!-- Game 3: Snake -->
-            <a href="Games/Project_Snake/index.html" class="game-card cyber-chamfer card-cyan" data-game="snake">
-                <div class="card-corner-tag">MOD_03</div>
-                <div class="card-content">
-                    <div class="icon-wrapper">
-                        <img src="Games/Project_Snake/assets/snake-icon.png?v=302" alt="Data Serpent Cyber Emblem" class="game-card-icon icon-cyan">
-                    </div>
-                    <h2>DATA SERPENT</h2>
-                    <p class="card-desc">Worm crawler harvesting raw memory packets through firewall grids.</p>
-                    <div class="card-footer">
-                        <span class="card-chip" id="record-snake">RECORD: 0 BYTES</span>
-                        <span class="card-action">INJECT &rarr;</span>
-                    </div>
-                </div>
-                <div class="card-scan-line"></div>
-            </a>
-
-            <!-- Game 4: Tetris -->
-            <a href="Games/Project_Tetris/index.html" class="game-card cyber-chamfer card-yellow" data-game="tetris">
-                <div class="card-corner-tag">MOD_04</div>
-                <div class="card-content">
-                    <div class="icon-wrapper">
-                        <img src="Games/Project_Tetris/assets/tetris-icon.png?v=302" alt="Cyber Stack Cyber Emblem" class="game-card-icon icon-yellow">
-                    </div>
-                    <h2>CYBER STACK</h2>
-                    <p class="card-desc">High-density neural memory defragmentation in falling blocks.</p>
-                    <div class="card-footer">
-                        <span class="card-chip" id="record-tetris">HIGH SCORE: 0</span>
-                        <span class="card-action">INITIALIZE &rarr;</span>
-                    </div>
-                </div>
-                <div class="card-scan-line"></div>
-            </a>
+            </div>
+            <div class="slot" aria-hidden="true"><span></span></div>
         </section>
 
-        <!-- Footer HUD -->
-        <footer class="hud-footer">
-            <div class="hud-footer-content">
-                <span>TERMINAL_ID: 0x8849-CYBER-CORE</span>
-                <span>SEC_STATUS: OVERRIDDEN</span>
-                <span>ARCH: QUANTUM_VANILLA_JS</span>
-            </div>
-        </footer>
+        <section class="shelf" id="games" aria-label="Games">
+            <a class="cart cart--green" href="Games/Project_Memory/index.html" data-game="memory"
+               data-title="Simon Says" data-desc="Watch the colors light up, then repeat the pattern. How long can you remember?">
+                <span class="cart-grip" aria-hidden="true"></span>
+                <span class="cart-label">
+                    <svg class="cart-art" aria-hidden="true"><use href="assets/icons.svg#a-memory"></use></svg>
+                    <span class="cart-name">Simon Says</span>
+                </span>
+                <span class="chip" id="record-memory">Best: <b>level 0</b></span>
+            </a>
+            <a class="cart cart--pink" href="Games/Project_RPS/index.html" data-game="rps"
+               data-title="Rock Paper Scissors" data-desc="Beat the robot in a best-of-1, 3 or 5 and build a winning streak.">
+                <span class="cart-grip" aria-hidden="true"></span>
+                <span class="cart-label">
+                    <svg class="cart-art" aria-hidden="true"><use href="assets/icons.svg#a-rps"></use></svg>
+                    <span class="cart-name">Rock Paper Scissors</span>
+                </span>
+                <span class="chip" id="record-rps">Best streak: <b>0</b></span>
+            </a>
+            <a class="cart cart--blue" href="Games/Project_Snake/index.html" data-game="snake"
+               data-title="Snake" data-desc="Guide the hungry snake to the snacks without biting your own tail.">
+                <span class="cart-grip" aria-hidden="true"></span>
+                <span class="cart-label">
+                    <svg class="cart-art" aria-hidden="true"><use href="assets/icons.svg#a-snake"></use></svg>
+                    <span class="cart-name">Snake</span>
+                </span>
+                <span class="chip" id="record-snake">Best: <b>0</b></span>
+            </a>
+            <a class="cart cart--yellow" href="Games/Project_Tetris/index.html" data-game="tetris"
+               data-title="Block Stack" data-desc="Spin and drop falling blocks to clear whole lines before they pile up.">
+                <span class="cart-grip" aria-hidden="true"></span>
+                <span class="cart-label">
+                    <svg class="cart-art" aria-hidden="true"><use href="assets/icons.svg#a-tetris"></use></svg>
+                    <span class="cart-name">Block Stack</span>
+                </span>
+                <span class="chip" id="record-tetris">Best: <b>0</b></span>
+            </a>
+        </section>
     </main>
 
-    <script src="cyberpunk-system.js"></script>
-    <script src="script.js"></script>
+    <footer class="site-foot">
+        <p>Tip: press <kbd>1</kbd> to <kbd>4</kbd> to pick a cartridge.</p>
+        <p>Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.</p>
+    </footer>
+
+    <script src="toybox.js"></script>
+    <script src="hub.js"></script>
 </body>
 
 </html>

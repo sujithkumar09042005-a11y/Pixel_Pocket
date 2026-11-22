@@ -55,7 +55,7 @@ function init() {
     isPaused = false;
 
     if (pauseOverlay) pauseOverlay.style.display = 'none';
-    if (pauseBtn) pauseBtn.textContent = '[PAUSE: P]';
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
 
     diffBtns.forEach(btn => btn.disabled = false);
 
@@ -78,11 +78,11 @@ function togglePause() {
 
     if (isPaused) {
         if (pauseOverlay) pauseOverlay.style.display = 'flex';
-        if (pauseBtn) pauseBtn.textContent = '[RESUME: P]';
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
         if (window.CyberSystem) window.CyberSystem.Audio.playAlert();
     } else {
         if (pauseOverlay) pauseOverlay.style.display = 'none';
-        if (pauseBtn) pauseBtn.textContent = '[PAUSE: P]';
+        if (pauseBtn) pauseBtn.textContent = 'Pause';
         if (window.CyberSystem) window.CyberSystem.Audio.playClick();
     }
 }
@@ -187,9 +187,9 @@ function gameLoop() {
     if (snake[0].x === food.x && snake[0].y === food.y) {
         score += 10;
         scoreEl.textContent = score;
-        scoreEl.classList.remove('bump');
+        scoreEl.classList.remove('score-pop');
         void scoreEl.offsetWidth;
-        scoreEl.classList.add('bump');
+        scoreEl.classList.add('score-pop');
 
         // Check high score record
         if (window.CyberSystem && window.CyberSystem.Scores) {
@@ -207,92 +207,72 @@ function gameLoop() {
 
 // ── Canvas Rendering ────────────────────────────────
 function draw() {
-    ctx.fillStyle = '#0a0a0f';
+    const pal = window.ToyBox.palette();
+
+    ctx.fillStyle = pal.bg;
     ctx.fillRect(0, 0, BOARD_W, BOARD_H);
 
-    // High-Tech Grid Coordinates
-    ctx.strokeStyle = 'rgba(0, 255, 136, 0.05)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= COLS; i++) {
-        ctx.beginPath();
-        ctx.moveTo(i * TILE, 0);
-        ctx.lineTo(i * TILE, BOARD_H);
-        ctx.stroke();
-    }
-    for (let j = 0; j <= ROWS; j++) {
-        ctx.beginPath();
-        ctx.moveTo(0, j * TILE);
-        ctx.lineTo(BOARD_W, j * TILE);
-        ctx.stroke();
+    // Checkerboard lawn
+    ctx.fillStyle = pal.grid;
+    for (let i = 0; i < COLS; i++) {
+        for (let j = 0; j < ROWS; j++) {
+            if ((i + j) % 2 === 0) ctx.fillRect(i * TILE, j * TILE, TILE, TILE);
+        }
     }
 
-    // Corrupted Data Core (Food)
-    const fx = food.x * TILE;
-    const fy = food.y * TILE;
-
-    const glow = ctx.createRadialGradient(
-        fx + TILE / 2, fy + TILE / 2, 2,
-        fx + TILE / 2, fy + TILE / 2, TILE * 1.2
-    );
-    glow.addColorStop(0, '#ff00ff');
-    glow.addColorStop(0.5, 'rgba(255, 0, 255, 0.4)');
-    glow.addColorStop(1, 'rgba(255, 0, 255, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(fx - 6, fy - 6, TILE + 12, TILE + 12);
-
-    ctx.fillStyle = '#ff00ff';
+    // Snack (a little cherry)
+    const fx = food.x * TILE + TILE / 2;
+    const fy = food.y * TILE + TILE / 2 + 1;
+    ctx.fillStyle = pal.red;
+    ctx.strokeStyle = pal.ink;
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(fx + TILE / 2, fy + 2);
-    ctx.lineTo(fx + TILE - 2, fy + TILE / 2);
-    ctx.lineTo(fx + TILE / 2, fy + TILE - 2);
-    ctx.lineTo(fx + 2, fy + TILE / 2);
-    ctx.closePath();
+    ctx.arc(fx, fy, TILE / 2 - 3, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.strokeStyle = pal.green;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(fx, fy - TILE / 2 + 3);
+    ctx.quadraticCurveTo(fx + 2, fy - TILE / 2 - 3, fx + 7, fy - TILE / 2 - 2);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.beginPath();
+    ctx.arc(fx - 3, fy - 3, 2.2, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(fx + TILE / 2 - 2, fy + TILE / 2 - 2, 4, 4);
-
-    // Snake Segments
+    // Snake body: chunky rounded tiles in two alternating greens
     snake.forEach((seg, i) => {
         const sx = seg.x * TILE;
         const sy = seg.y * TILE;
-
-        if (i === 0) {
-            const grad = ctx.createLinearGradient(sx, sy, sx + TILE, sy + TILE);
-            grad.addColorStop(0, '#00ff88');
-            grad.addColorStop(1, '#00d4ff');
-            ctx.fillStyle = grad;
-            ctx.fillRect(sx + 1, sy + 1, TILE - 2, TILE - 2);
-
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(sx + 1, sy + 1, TILE - 2, TILE - 2);
-        } else {
-            const ratio = i / Math.max(snake.length, 1);
-            if (i % 2 === 0) {
-                ctx.fillStyle = `rgba(0, 255, 136, ${Math.max(0.35, 1 - ratio * 0.6)})`;
-            } else {
-                ctx.fillStyle = `rgba(0, 212, 255, ${Math.max(0.35, 1 - ratio * 0.6)})`;
-            }
-            ctx.fillRect(sx + 2, sy + 2, TILE - 4, TILE - 4);
-        }
+        const inset = i === 0 ? 1 : 2;
+        ctx.fillStyle = i === 0 ? pal.green : (i % 2 === 0 ? pal.green : pal.blue);
+        ctx.strokeStyle = pal.ink;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(sx + inset, sy + inset, TILE - inset * 2, TILE - inset * 2, i === 0 ? 9 : 7);
+        ctx.fill();
+        ctx.stroke();
     });
 
     drawEyes();
 
     // Prompt when waiting for start
     if (waitingForStart) {
-        ctx.fillStyle = 'rgba(10, 10, 15, 0.75)';
-        ctx.fillRect(BOARD_W / 2 - 240, BOARD_H / 2 + 15, 480, 50);
-        ctx.strokeStyle = '#00ff88';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(BOARD_W / 2 - 240, BOARD_H / 2 + 15, 480, 50);
+        ctx.fillStyle = pal.bg;
+        ctx.strokeStyle = pal.ink;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(BOARD_W / 2 - 250, BOARD_H / 2 + 60, 500, 52, 26);
+        ctx.fill();
+        ctx.stroke();
 
-        ctx.fillStyle = '#00ff88';
-        ctx.font = '600 16px "Share Tech Mono", monospace';
+        ctx.fillStyle = pal.ink;
+        ctx.font = '700 20px "Fredoka", system-ui, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('> PRESS ARROW KEY OR SWIPE TO INJECT WORM <', BOARD_W / 2, BOARD_H / 2 + 40);
+        ctx.fillText('Press an arrow key or swipe to start!', BOARD_W / 2, BOARD_H / 2 + 87);
     }
 }
 
@@ -301,29 +281,36 @@ function drawEyes() {
     const head = snake[0];
     const hx = head.x * TILE;
     const hy = head.y * TILE;
-    const eyeSize = 3;
     let e1, e2;
 
     const dx = direction.x || 1;
     const dy = direction.y;
 
     if (dx === 1 && dy === 0) {
-        e1 = { x: hx + 18, y: hy + 6 };
-        e2 = { x: hx + 18, y: hy + 16 };
+        e1 = { x: hx + 17, y: hy + 8 };
+        e2 = { x: hx + 17, y: hy + 17 };
     } else if (dx === -1 && dy === 0) {
-        e1 = { x: hx + 4, y: hy + 6 };
-        e2 = { x: hx + 4, y: hy + 16 };
+        e1 = { x: hx + 8, y: hy + 8 };
+        e2 = { x: hx + 8, y: hy + 17 };
     } else if (dy === -1) {
-        e1 = { x: hx + 6, y: hy + 4 };
-        e2 = { x: hx + 16, y: hy + 4 };
+        e1 = { x: hx + 8, y: hy + 8 };
+        e2 = { x: hx + 17, y: hy + 8 };
     } else {
-        e1 = { x: hx + 6, y: hy + 18 };
-        e2 = { x: hx + 16, y: hy + 18 };
+        e1 = { x: hx + 8, y: hy + 17 };
+        e2 = { x: hx + 17, y: hy + 17 };
     }
 
-    ctx.fillStyle = '#ff00ff';
-    ctx.fillRect(e1.x, e1.y, eyeSize, eyeSize);
-    ctx.fillRect(e2.x, e2.y, eyeSize, eyeSize);
+    const pal = window.ToyBox.palette();
+    [e1, e2].forEach((e) => {
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(e.x, e.y, 3.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = pal.ink;
+        ctx.beginPath();
+        ctx.arc(e.x + direction.x * 1.2, e.y + direction.y * 1.2, 1.7, 0, Math.PI * 2);
+        ctx.fill();
+    });
 }
 
 // ── End Game Terminal Overlay ───────────────────────
@@ -332,28 +319,38 @@ function endGame() {
     clearInterval(loopId);
     playGameOverSound();
 
-    ctx.fillStyle = 'rgba(10, 10, 15, 0.88)';
+    const pal = window.ToyBox.palette();
+
+    ctx.fillStyle = pal.bg;
+    ctx.globalAlpha = 0.85;
     ctx.fillRect(0, 0, BOARD_W, BOARD_H);
+    ctx.globalAlpha = 1;
 
-    ctx.strokeStyle = '#ff3366';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(BOARD_W / 2 - 250, BOARD_H / 2 - 100, 500, 200);
+    ctx.fillStyle = pal.bg;
+    ctx.strokeStyle = pal.ink;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.roundRect(BOARD_W / 2 - 230, BOARD_H / 2 - 100, 460, 200, 28);
+    ctx.fill();
+    ctx.stroke();
 
-    ctx.fillStyle = '#ff3366';
-    ctx.font = '900 36px "Orbitron", monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText('CONNECTION TERMINATED', BOARD_W / 2, BOARD_H / 2 - 35);
 
-    ctx.fillStyle = '#00ff88';
-    ctx.font = '600 20px "Share Tech Mono", monospace';
-    ctx.fillText(`TOTAL BYTES CAPTURED: [${score}]`, BOARD_W / 2, BOARD_H / 2 + 15);
+    ctx.fillStyle = pal.pink;
+    ctx.font = '700 44px "Fredoka", system-ui, sans-serif';
+    ctx.fillText('Oh no! Chomp!', BOARD_W / 2, BOARD_H / 2 - 40);
 
-    ctx.fillStyle = '#6b7280';
-    ctx.font = '14px "JetBrains Mono", monospace';
-    ctx.fillText('SECURITY DAEMON: HOSTILE TRACE SUCCESSFUL', BOARD_W / 2, BOARD_H / 2 + 50);
+    ctx.fillStyle = pal.ink;
+    ctx.font = '700 26px "Fredoka", system-ui, sans-serif';
+    ctx.fillText(`Snacks eaten: ${score}`, BOARD_W / 2, BOARD_H / 2 + 12);
 
-    restartBtn.style.display = 'inline-block';
+    ctx.fillStyle = pal.soft;
+    ctx.font = '700 17px "Nunito", system-ui, sans-serif';
+    ctx.fillText('Tap "Play again" to have another go', BOARD_W / 2, BOARD_H / 2 + 56);
+
+    restartBtn.style.display = 'inline-flex';
+    restartBtn.focus();
 }
 
 // ── Event Listeners ─────────────────────────────────
@@ -392,8 +389,12 @@ if (window.CyberSystem && window.CyberSystem.attachSwipeListener) {
 // Difficulty Selector
 diffBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-        diffBtns.forEach(b => b.classList.remove('active'));
+        diffBtns.forEach(b => {
+            b.classList.remove('active');
+            b.setAttribute('aria-pressed', 'false');
+        });
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
 
         tickMs = parseInt(btn.dataset.speed, 10);
 
@@ -402,20 +403,10 @@ diffBtns.forEach(btn => {
     });
 });
 
-// Wire up HUD toggles
-const audioBtn = document.getElementById('hud-audio-toggle');
-if (audioBtn && window.CyberSystem) {
-    audioBtn.addEventListener('click', () => {
-        window.CyberSystem.Audio.toggleMute();
-    });
-}
-
-const crtBtn = document.getElementById('hud-crt-toggle');
-if (crtBtn && window.CyberSystem) {
-    crtBtn.addEventListener('click', () => {
-        window.CyberSystem.CRT.toggle();
-    });
-}
+// Redraw right away when the theme changes so the board matches the page
+window.addEventListener('toybox:themechange', () => {
+    if (snake) draw();
+});
 
 // ── Start ──────────────────────────────────────────
 init();

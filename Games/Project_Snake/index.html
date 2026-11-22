@@ -1,89 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. -->
+<html lang="en" data-theme="light">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Cyberpunk Data Serpent - Infiltrate firewalls and harvest corrupted memory packets.">
-    <title>DATA SERPENT // Cyberpunk Snake Protocol</title>
-    <!-- Master Cyber Hub Favicons -->
-    <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32x32.png?v=401">
-    <link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64x64.png?v=401">
-    <link rel="apple-touch-icon" sizes="180x180" href="../../assets/apple-touch-icon.png?v=401">
-    <link rel="shortcut icon" href="../../favicon.ico?v=401">
-    <link rel="stylesheet" href="../../cyberpunk-core.css?v=303">
-    <link rel="stylesheet" href="style.css?v=303">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="description" content="Snake - guide the hungry snake to the snacks without biting your own tail.">
+    <meta name="theme-color" content="#fff1d6">
+    <title>Snake | Toy Box Arcade</title>
+    <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('toybox_theme');
+                if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                document.documentElement.dataset.theme = t;
+                var s = localStorage.getItem('toybox_shell');
+                if (s) document.documentElement.dataset.shell = s;
+            } catch (e) { }
+        })();
+    </script>
+    <link rel="stylesheet" href="../../toybox.css">
+    <link rel="stylesheet" href="../../games.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="cyber-theme cyber-grid-bg cyber-scanlines">
-    <!-- HUD Back Button -->
-    <a href="../../index.html" class="cyber-hud-back">ABORT_WORM // HUB</a>
+<body>
+    <a class="skip-link" href="#game-board">Skip to game</a>
 
-    <!-- Top Right HUD Controls -->
-    <div class="hud-top-actions">
-        <button id="pause-btn" class="hud-toggle-btn" title="Toggle Pause (P)">[PAUSE: P]</button>
-        <button id="hud-audio-toggle" class="hud-toggle-btn hud-audio-toggle" title="Toggle Sound">[VOL: ON]</button>
-        <button id="hud-crt-toggle" class="hud-toggle-btn hud-crt-toggle" title="Toggle CRT Scanlines">[CRT: ON]</button>
-    </div>
-
-    <div class="game-header-row">
-        <img src="assets/snake-icon.png?v=302" alt="Data Serpent Emblem" class="header-emblem-mini emblem-cyan">
-        <div class="cyber-badge">WORM INFILTRATION // SECTOR 03</div>
-    </div>
-    <h1 id="game-title" class="cyber-glitch" data-text="DATA // SERPENT">DATA <span class="highlight">// SERPENT</span></h1>
-
-    <!-- Score HUD with Personal Best Record -->
-    <div id="score-board" class="cyber-chamfer-sm">
-        <div class="score-stat">
-            <span class="score-label">BYTES_HARVESTED:</span>
-            <span id="score-value">0</span>
+    <header class="topbar">
+        <a class="toy-btn toy-btn--ghost" href="../../index.html"><svg width="20" height="20" aria-hidden="true"><use href="../../assets/icons.svg#i-back"></use></svg>Games</a>
+        <h1 class="page-title">Snake</h1>
+        <div class="topbar-actions">
+            <button type="button" class="toy-btn toy-btn--ghost icon-btn hud-audio-toggle" aria-label="Sound" aria-pressed="true" title="Sound on / off">
+                <svg aria-hidden="true"><use href="../../assets/icons.svg#i-sound"></use></svg>
+            </button>
+            <button type="button" class="theme-switch" data-theme-toggle role="switch" aria-checked="false" aria-label="Dark mode" title="Light / dark mode">
+                <svg class="ts-icon ts-sun" aria-hidden="true"><use href="../../assets/icons.svg#i-sun"></use></svg>
+                <svg class="ts-icon ts-moon" aria-hidden="true"><use href="../../assets/icons.svg#i-moon"></use></svg>
+                <span class="ts-knob"></span>
+            </button>
         </div>
-        <div class="score-divider">|</div>
-        <div class="score-stat">
-            <span class="score-label">RECORD:</span>
-            <span id="best-score-value" class="neon-cyan">0</span>
-        </div>
-    </div>
+    </header>
 
-    <!-- Difficulty Control Bar -->
-    <div id="difficulty-bar" class="cyber-chamfer-sm">
-        <span class="diff-label">> FREQUENCY:</span>
-        <button class="diff-btn cyber-chamfer-sm" data-speed="140" id="btn-easy">
-            <span class="diff-dot green"></span> LOW_BANDWIDTH
-        </button>
-        <button class="diff-btn active cyber-chamfer-sm" data-speed="100" id="btn-medium">
-            <span class="diff-dot yellow"></span> STANDARD_FREQ
-        </button>
-        <button class="diff-btn cyber-chamfer-sm" data-speed="60" id="btn-hard">
-            <span class="diff-dot red"></span> OVERCLOCK_GHZ
-        </button>
-    </div>
+    <main>
+        <section class="game-console" style="--gc-w: 880px" aria-label="Snake game">
+            <div class="console-head">
+                <span class="plate"><span class="led" aria-hidden="true"></span>Snake</span>
+                <span class="stats">
+                    <span class="chip">Snacks <b id="score-value">0</b></span>
+                    <span class="chip">Best <b id="best-score-value">0</b></span>
+                </span>
+            </div>
 
-    <!-- Terminal Canvas Wrapper -->
-    <div id="canvas-wrapper" class="cyber-chamfer">
-        <canvas id="game-board" width="800" height="500"></canvas>
-        <!-- Pause Overlay -->
-        <div id="pause-overlay" class="cyber-pause-overlay" style="display: none;">
-            <div class="pause-title">PAUSED</div>
-            <div class="pause-subtitle">> LINK SUSPENDED // PRESS P OR TAP TO RESUME &lt;</div>
-        </div>
-    </div>
+            <div class="bezel">
+                <div class="screen" id="canvas-wrapper">
+                    <canvas id="game-board" width="800" height="500" role="img"
+                        aria-label="Snake board. Use the arrow keys or WASD to steer, or swipe on the screen."></canvas>
+                    <div id="pause-overlay" class="toy-overlay" style="display: none;">
+                        <div class="overlay-title">Paused</div>
+                        <div class="overlay-sub">Press P or tap to keep playing</div>
+                    </div>
+                </div>
+            </div>
 
-    <!-- Mobile Virtual Touch D-Pad -->
-    <div class="virtual-dpad" id="virtual-dpad" aria-label="Touch Directional Pad">
-        <button class="dpad-btn dpad-up" data-dir="ArrowUp" aria-label="Up">▲</button>
-        <button class="dpad-btn dpad-left" data-dir="ArrowLeft" aria-label="Left">◀</button>
-        <button class="dpad-btn dpad-down" data-dir="ArrowDown" aria-label="Down">▼</button>
-        <button class="dpad-btn dpad-right" data-dir="ArrowRight" aria-label="Right">▶</button>
-    </div>
+            <div class="console-foot">
+                <div class="seg" id="difficulty-bar" role="group" aria-label="Speed">
+                    <button type="button" class="toy-btn toy-btn--ghost diff-btn" data-speed="140" id="btn-easy" aria-pressed="false">Slow</button>
+                    <button type="button" class="toy-btn toy-btn--ghost diff-btn active" data-speed="100" id="btn-medium" aria-pressed="true">Normal</button>
+                    <button type="button" class="toy-btn toy-btn--ghost diff-btn" data-speed="60" id="btn-hard" aria-pressed="false">Zoom</button>
+                </div>
+                <button type="button" id="pause-btn" class="toy-btn" title="Pause (P)">Pause</button>
+                <button type="button" id="restart-btn" class="toy-btn" style="display:none;">Play again</button>
+            </div>
 
-    <button id="restart-btn" class="cyber-chamfer-sm" style="display:none;">
-        &gt; RE-INJECT WORM THREAD
-    </button>
+            <div class="touch-pad dpad" id="virtual-dpad" aria-label="Touch controls">
+                <button type="button" class="round-btn dpad-up" data-dir="ArrowUp" aria-label="Up">&#9650;</button>
+                <button type="button" class="round-btn dpad-left" data-dir="ArrowLeft" aria-label="Left">&#9664;</button>
+                <button type="button" class="round-btn dpad-down" data-dir="ArrowDown" aria-label="Down">&#9660;</button>
+                <button type="button" class="round-btn dpad-right" data-dir="ArrowRight" aria-label="Right">&#9654;</button>
+            </div>
 
-    <script src="../../cyberpunk-system.js"></script>
+            <p class="how-to">Arrow keys or WASD to steer. P to pause.</p>
+        </section>
+    </main>
+
+    <footer class="site-foot">
+        <p>Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.</p>
+    </footer>
+
+    <script src="../../toybox.js"></script>
     <script src="script.js"></script>
 </body>
 

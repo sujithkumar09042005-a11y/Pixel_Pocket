@@ -1,0 +1,41 @@
+/* Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. */
+/* Shared pieces for the four game pages */
+
+main { padding: 0 14px; }
+
+.stats { display: inline-flex; gap: 8px; flex-wrap: wrap; }
+
+.seg { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.seg .toy-btn { padding: 0.5em 1em; font-size: 0.95rem; }
+
+.how-to {
+  margin-top: 14px;
+  text-align: center;
+  font-weight: 800;
+  color: var(--on-shell);
+  opacity: 0.85;
+}
+
+.dpad {
+  display: none;
+  grid-template-columns: repeat(3, 64px);
+  grid-template-rows: repeat(2, 64px);
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+@media (hover: none), (pointer: coarse) { .dpad { display: grid; } }
+.dpad-up { grid-column: 2; grid-row: 1; }
+.dpad-left { grid-column: 1; grid-row: 2; }
+.dpad-down { grid-column: 2; grid-row: 2; }
+.dpad-right { grid-column: 3; grid-row: 2; }
+
+.score-pop { animation: score-pop 0.3s var(--ease-boing); }
+@keyframes score-pop { 40% { transform: scale(1.5); } }
+
+@media (max-width: 560px) {
+  .game-console { padding: 12px 10px 16px; border-radius: 24px 24px 40px 24px; }
+  .bezel { padding: 8px; }
+  .screen { padding: 8px; }
+  .topbar .toy-btn:not(.icon-btn) { padding: 0.5em 0.9em; }
+}

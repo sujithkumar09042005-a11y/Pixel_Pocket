@@ -1,154 +1,139 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. -->
+<html lang="en" data-theme="light">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>COMBAT SIM // Cyberpunk RPS Protocol</title>
-  <!-- Master Cyber Hub Favicons -->
-  <link rel="icon" type="image/png" sizes="32x32" href="../../assets/favicon-32x32.png?v=401">
-  <link rel="icon" type="image/png" sizes="64x64" href="../../assets/favicon-64x64.png?v=401">
-  <link rel="apple-touch-icon" sizes="180x180" href="../../assets/apple-touch-icon.png?v=401">
-  <link rel="shortcut icon" href="../../favicon.ico?v=401">
-  <link rel="stylesheet" href="../../cyberpunk-core.css?v=303">
-  <link rel="stylesheet" href="styles.css?v=303">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="description" content="Rock Paper Scissors - beat the robot and build a winning streak.">
+  <meta name="theme-color" content="#fff1d6">
+  <title>Rock Paper Scissors | Toy Box Arcade</title>
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('toybox_theme');
+        if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = t;
+        var s = localStorage.getItem('toybox_shell');
+        if (s) document.documentElement.dataset.shell = s;
+      } catch (e) { }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../toybox.css">
+  <link rel="stylesheet" href="../../games.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="cyber-theme cyber-grid-bg cyber-scanlines">
-  <!-- HUD Back Button -->
-  <a href="../../index.html" class="cyber-hud-back">ABORT_COMBAT // HUB</a>
+<body>
+  <a class="skip-link" href="#console">Skip to game</a>
 
-  <!-- Top Right HUD Controls -->
-  <div class="hud-top-actions">
-    <button id="hud-audio-toggle" class="hud-toggle-btn hud-audio-toggle" title="Toggle Sound">[VOL: ON]</button>
-    <button id="hud-crt-toggle" class="hud-toggle-btn hud-crt-toggle" title="Toggle CRT Scanlines">[CRT: ON]</button>
-  </div>
-
-  <!-- Landing: choose Best of 1 / 3 / 5 -->
-  <section class="landing-page" id="landing-page">
-    <div class="emblem-container">
-      <img src="assets/rps-icon.png?v=401" alt="RPS Combat Medallion" class="landing-emblem-img">
-    </div>
-    <div class="cyber-badge">TACTICAL PROTOCOL // SECTOR 02</div>
-    <header>
-      <h1 class="glitch-title cyber-glitch" data-text="COMBAT // SIM">COMBAT <span class="highlight">// SIM</span></h1>
-    </header>
-    <p class="landing-subtitle">> SELECT ENGAGEMENT THRESHOLD</p>
-    <div class="mode-options">
-      <button type="button" class="mode-btn cyber-chamfer-sm" data-rounds="1">
-        <span class="mode-code">[SIM_01]</span> BEST OF 1
+  <header class="topbar">
+    <a class="toy-btn toy-btn--ghost" href="../../index.html"><svg width="20" height="20" aria-hidden="true"><use href="../../assets/icons.svg#i-back"></use></svg>Games</a>
+    <h1 class="page-title">Rock Paper Scissors</h1>
+    <div class="topbar-actions">
+      <button type="button" class="toy-btn toy-btn--ghost icon-btn hud-audio-toggle" aria-label="Sound" aria-pressed="true" title="Sound on / off">
+        <svg aria-hidden="true"><use href="../../assets/icons.svg#i-sound"></use></svg>
       </button>
-      <button type="button" class="mode-btn cyber-chamfer-sm" data-rounds="3">
-        <span class="mode-code">[SIM_03]</span> BEST OF 3
-      </button>
-      <button type="button" class="mode-btn cyber-chamfer-sm" data-rounds="5">
-        <span class="mode-code">[SIM_05]</span> BEST OF 5
+      <button type="button" class="theme-switch" data-theme-toggle role="switch" aria-checked="false" aria-label="Dark mode" title="Light / dark mode">
+        <svg class="ts-icon ts-sun" aria-hidden="true"><use href="../../assets/icons.svg#i-sun"></use></svg>
+        <svg class="ts-icon ts-moon" aria-hidden="true"><use href="../../assets/icons.svg#i-moon"></use></svg>
+        <span class="ts-knob"></span>
       </button>
     </div>
-  </section>
+  </header>
 
-  <!-- Game screen -->
-  <section class="game-screen hidden" id="game-screen">
-    <div class="cyber-badge">ACTIVE ENGAGEMENT // PROTOCOL: RPS</div>
-    <header>
-      <div class="game-title-row">
-        <img src="assets/rps-icon.png?v=401" alt="RPS Icon" class="header-emblem-mini">
-        <h1 class="game-title">COMBAT <span class="highlight">// SIM</span></h1>
-      </div>
-      <p class="match-info" id="match-info"></p>
-    </header>
-
-    <!-- Tactical Scoreboard HUD with Streak Counter -->
-    <section class="scoreboard cyber-chamfer-sm">
-      <div class="score-block">
-        <span class="score-label">NETRUNNER</span>
-        <span id="user-score" class="score-num neon-green">0</span>
+  <main>
+    <section class="game-console" id="console" style="--gc-w: 700px" aria-label="Rock Paper Scissors game">
+      <div class="console-head">
+        <span class="plate"><span class="led" aria-hidden="true"></span>Rock Paper Scissors</span>
+        <span class="stats"><span class="chip">Streak <b id="streak-num">0</b></span><span class="chip" id="best-streak-num">Best: 0</span></span>
       </div>
 
-      <div class="score-divider">
-        <span class="score-separator">:</span>
-      </div>
+      <div class="bezel">
+        <div class="screen rps-screen">
 
-      <div class="score-block">
-        <span class="score-label">SENTINEL_AI</span>
-        <span id="computer-score" class="score-num neon-magenta">0</span>
-      </div>
+          <!-- Landing: choose Best of 1 / 3 / 5 -->
+          <section class="landing-page" id="landing-page">
+            <svg class="landing-art" aria-hidden="true"><use href="../../assets/icons.svg#a-rps"></use></svg>
+            <h2>How long should we play?</h2>
+            <div class="mode-options seg">
+              <button type="button" class="toy-btn toy-btn--ghost mode-btn" data-rounds="1">Best of 1</button>
+              <button type="button" class="toy-btn toy-btn--ghost mode-btn" data-rounds="3">Best of 3</button>
+              <button type="button" class="toy-btn toy-btn--ghost mode-btn" data-rounds="5">Best of 5</button>
+            </div>
+          </section>
 
-      <div class="score-divider hide-mobile">
-        <span class="score-separator">|</span>
-      </div>
+          <!-- Game screen -->
+          <section class="game-screen hidden" id="game-screen">
+            <p class="match-info" id="match-info"></p>
 
-      <div class="score-block streak-block">
-        <span class="score-label">WIN_STREAK</span>
-        <span id="streak-num" class="score-num neon-cyan">0</span>
-        <span class="streak-best" id="best-streak-num">RECORD: 0</span>
+            <div class="scoreboard">
+              <div class="score-block">
+                <span class="score-label">You</span>
+                <span id="user-score" class="score-num">0</span>
+              </div>
+              <span class="score-separator" aria-hidden="true">:</span>
+              <div class="score-block">
+                <span class="score-label">Robot</span>
+                <span id="computer-score" class="score-num">0</span>
+              </div>
+            </div>
+
+            <div class="battle-area">
+              <div class="battle-side">
+                <p class="battle-label">You</p>
+                <div class="battle-choice" id="user-battle-choice">
+                  <span class="placeholder-text">Ready</span>
+                  <img class="choice-img hidden" id="user-choice-img" src="" alt="">
+                </div>
+              </div>
+              <span class="battle-vs" aria-hidden="true">VS</span>
+              <div class="battle-side">
+                <p class="battle-label">Robot</p>
+                <div class="battle-choice" id="comp-battle-choice">
+                  <span class="placeholder-text" id="comp-placeholder">?</span>
+                  <img class="choice-img hidden" id="comp-choice-img" src="" alt="">
+                </div>
+              </div>
+            </div>
+
+            <div class="result-area" aria-live="polite">
+              <p id="result-message">Pick your move!</p>
+              <p id="ai-taunt" class="ai-taunt"></p>
+            </div>
+
+            <div class="select-choice-section">
+              <div class="choices-container" role="group" aria-label="Choose your move">
+                <button type="button" class="choice" id="rock" data-choice="rock">
+                  <img src="assets/rock.svg" alt="" width="72" height="72"><span class="choice-name">Rock</span>
+                </button>
+                <button type="button" class="choice" id="paper" data-choice="paper">
+                  <img src="assets/paper.svg" alt="" width="72" height="72"><span class="choice-name">Paper</span>
+                </button>
+                <button type="button" class="choice" id="scissors" data-choice="scissors">
+                  <img src="assets/scissors.svg" alt="" width="72" height="72"><span class="choice-name">Scissors</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Match over -->
+            <div class="game-over-area toy-overlay hidden" id="game-over-area" role="alertdialog" aria-label="Match over">
+              <div class="toy-card game-over-inner">
+                <h2 id="game-over-message"></h2>
+                <p>Ready for another match?</p>
+                <button type="button" class="toy-btn play-again-btn" id="play-again-btn">Play again</button>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </section>
+  </main>
 
-    <!-- Battle area: user choice vs computer choice -->
-    <div class="battle-area">
-      <div class="battle-side user-side">
-        <p class="battle-label neon-green">> YOU</p>
-        <div class="battle-choice cyber-chamfer" id="user-battle-choice">
-          <span class="placeholder-text hidden">READY</span>
-          <img class="choice-img hidden" id="user-choice-img" src="" alt="">
-        </div>
-      </div>
-
-      <div class="battle-vs-wrapper">
-        <span class="battle-vs cyber-glitch" data-text="VS">VS</span>
-      </div>
-
-      <div class="battle-side comp-side">
-        <p class="battle-label neon-magenta">> ENEMY_AI</p>
-        <div class="battle-choice cyber-chamfer" id="comp-battle-choice">
-          <span class="placeholder-text" id="comp-placeholder">?</span>
-          <img class="choice-img hidden" id="comp-choice-img" src="" alt="">
-        </div>
-      </div>
-    </div>
-
-    <!-- Battle Result Message & AI Cyber Taunt -->
-    <div class="result-area cyber-chamfer-sm">
-      <p id="result-message">> AWAITING OPERATIVE INPUT...</p>
-      <p id="ai-taunt" class="ai-taunt">> SENTINEL_AI: "CALIBRATING QUANTUM THREAT REASONING..."</p>
-    </div>
-
-    <!-- Move Selection -->
-    <div class="select-choice-section">
-      <p class="select-choice-label">> SELECT HAND WEAPON MATRIX</p>
-      <div class="choices-container">
-        <div class="choice cyber-chamfer" id="rock" data-choice="rock" title="Rock">
-          <div class="choice-code">[01]</div>
-          <img src="assets/rock.png?v=301" alt="Rock">
-          <span class="choice-name">ROCK</span>
-        </div>
-        <div class="choice cyber-chamfer" id="paper" data-choice="paper" title="Paper">
-          <div class="choice-code">[02]</div>
-          <img src="assets/paper.png?v=301" alt="Paper">
-          <span class="choice-name">PAPER</span>
-        </div>
-        <div class="choice cyber-chamfer" id="scissors" data-choice="scissors" title="Scissors">
-          <div class="choice-code">[03]</div>
-          <img src="assets/scissors.png?v=301" alt="Scissors">
-          <span class="choice-name">SCISSORS</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Game Over Area Modal -->
-    <div class="game-over-area hidden cyber-chamfer" id="game-over-area">
-      <div class="game-over-inner">
-        <div class="cyber-badge" style="margin-bottom: 1rem;">MISSION REPORT</div>
-        <p id="game-over-message"></p>
-        <button type="button" class="play-again-btn cyber-chamfer-sm" id="play-again-btn">
-          &gt; RE-ENGAGE SIMULATION
-        </button>
-      </div>
-    </div>
-  </section>
+  <footer class="site-foot">
+    <p>Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.</p>
+  </footer>
 
   <audio id="point-sfx" preload="auto">
     <source src="assets/Point_SFX.mp3" type="audio/mpeg">
@@ -157,8 +142,8 @@
     <source src="assets/Game_Over_SFX.mp3" type="audio/mpeg">
   </audio>
 
-  <script src="../../cyberpunk-system.js?v=301"></script>
-  <script src="script.js?v=301"></script>
+  <script src="../../toybox.js"></script>
+  <script src="script.js"></script>
 </body>
 
 </html>

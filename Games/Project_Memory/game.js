@@ -1,138 +1,123 @@
-var buttonColours = ["red", "blue", "green", "yellow"];
-var gamePattern = [];
-var userClickedPattern = [];
-var started = false;
-var level = 0;
-var gameSpeed = 1000; // Default speed for Easy
+// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
+// Simon Says. Plain JavaScript (no jQuery).
 
-function updateBestRecordDisplay() {
-  if (window.CyberSystem && window.CyberSystem.Scores) {
-    var best = window.CyberSystem.Scores.get("memory");
-    $("#memory-best-badge").text("BEST RECORD: LVL " + best);
+(function () {
+  'use strict';
+
+  const buttonColours = ['red', 'blue', 'green', 'yellow'];
+  const speeds = { easy: 1000, medium: 600, hard: 300 };
+
+  const levelTitle = document.getElementById('level-title');
+  const bestBadge = document.getElementById('memory-best-badge');
+  const selector = document.getElementById('difficulty-selector');
+
+  let gamePattern = [];
+  let userClickedPattern = [];
+  let started = false;
+  let accepting = false; // false while the pattern is being shown
+  let level = 0;
+  let gameSpeed = speeds.easy;
+
+  function toy() {
+    return window.ToyBox;
   }
-}
 
-// Initial record display
-$(document).ready(function () {
-  updateBestRecordDisplay();
-
-  // Wire up HUD toggles
-  $("#hud-audio-toggle").click(function () {
-    if (window.CyberSystem) window.CyberSystem.Audio.toggleMute();
-  });
-  $("#hud-crt-toggle").click(function () {
-    if (window.CyberSystem) window.CyberSystem.CRT.toggle();
-  });
-});
-
-// Difficulty Selection
-$(".diff-btn").click(function () {
-  if (!started) {
-    var difficulty = $(this).attr("id");
-    setDifficulty(difficulty);
-
-    $("#difficulty-selector").hide();
-    $("#level-title").text("Level " + level);
-    nextSequence();
-    started = true;
+  function updateBestRecordDisplay() {
+    bestBadge.textContent = 'Best: level ' + toy().Scores.get('memory');
   }
-});
 
-function setDifficulty(diff) {
-  switch (diff) {
-    case "easy":
-      gameSpeed = 1000;
-      break;
-    case "medium":
-      gameSpeed = 600;
-      break;
-    case "hard":
-      gameSpeed = 300;
-      break;
-    default:
-      gameSpeed = 1000;
+  function playSound(name) {
+    if (toy().Audio.isMuted()) return;
+    const audio = new Audio('sounds/' + name + '.mp3');
+    audio.play().catch(() => {});
   }
-}
 
-$(".btn").click(function () {
-  if (!started) return;
+  function flash(colour, ms) {
+    const pad = document.getElementById(colour);
+    pad.classList.add('pressed');
+    setTimeout(() => pad.classList.remove('pressed'), ms);
+  }
 
-  var userChosenColour = $(this).attr("id");
-  userClickedPattern.push(userChosenColour);
+  function nextSequence() {
+    userClickedPattern = [];
+    accepting = false;
+    level++;
+    levelTitle.textContent = 'Level ' + level;
 
-  playSound(userChosenColour);
-  animatePress(userChosenColour);
+    const colour = buttonColours[Math.floor(Math.random() * 4)];
+    gamePattern.push(colour);
 
-  checkAnswer(userClickedPattern.length - 1);
-});
+    // Replay the whole pattern, one pad at a time
+    gamePattern.forEach((c, i) => {
+      setTimeout(() => {
+        flash(c, Math.max(gameSpeed / 2, 150));
+        playSound(c);
+        if (i === gamePattern.length - 1) {
+          setTimeout(() => { accepting = true; levelTitle.textContent = 'Your turn! Level ' + level; }, gameSpeed / 2);
+        }
+      }, 500 + i * gameSpeed);
+    });
+  }
 
-function checkAnswer(currentLevel) {
-  if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
-    if (userClickedPattern.length === gamePattern.length) {
-      // Save high score progress
-      if (window.CyberSystem && window.CyberSystem.Scores) {
-        window.CyberSystem.Scores.set("memory", level);
+  function startOver() {
+    level = 0;
+    gamePattern = [];
+    started = false;
+    accepting = false;
+    selector.hidden = false;
+  }
+
+  function checkAnswer(index) {
+    if (gamePattern[index] === userClickedPattern[index]) {
+      if (userClickedPattern.length === gamePattern.length) {
+        accepting = false;
+        toy().Scores.set('memory', level);
         updateBestRecordDisplay();
+        levelTitle.textContent = 'Nice one!';
+        setTimeout(nextSequence, 1000);
       }
-
-      setTimeout(function () {
-        nextSequence();
-      }, 1000);
+    } else {
+      playSound('Game_Over_SFX');
+      toy().Audio.playAlert();
+      document.body.classList.add('game-over');
+      levelTitle.textContent = 'Oops! You reached level ' + level + '. Pick a speed to retry.';
+      setTimeout(() => document.body.classList.remove('game-over'), 250);
+      startOver();
     }
-  } else {
-    playSound("Game_Over_SFX");
-    if (window.CyberSystem && window.CyberSystem.Audio) {
-      window.CyberSystem.Audio.playAlert();
-    }
-    $("body").addClass("game-over");
-    $("#level-title").text("CONNECTION LOST // RE-ENGAGE");
-
-    setTimeout(function () {
-      $("body").removeClass("game-over");
-    }, 250);
-
-    startOver();
   }
-}
 
-function nextSequence() {
-  userClickedPattern = [];
-  level++;
-  $("#level-title").text("LEVEL " + (level < 10 ? "0" + level : level));
+  function onPad(colour) {
+    if (!started || !accepting) return;
 
-  var randomNumber = Math.floor(Math.random() * 4);
-  var randomChosenColour = buttonColours[randomNumber];
-  gamePattern.push(randomChosenColour);
-
-  setTimeout(function () {
-    $("#" + randomChosenColour).addClass("pressed");
-    playSound(randomChosenColour);
-
-    setTimeout(function () {
-      $("#" + randomChosenColour).removeClass("pressed");
-    }, gameSpeed / 2);
-  }, 500);
-}
-
-function animatePress(currentColor) {
-  $("#" + currentColor).addClass("pressed");
-  setTimeout(function () {
-    $("#" + currentColor).removeClass("pressed");
-  }, 100);
-}
-
-function playSound(name) {
-  if (window.CyberSystem && window.CyberSystem.Audio && window.CyberSystem.Audio.isMuted()) {
-    return;
+    userClickedPattern.push(colour);
+    playSound(colour);
+    flash(colour, 150);
+    checkAnswer(userClickedPattern.length - 1);
   }
-  var soundPath = "sounds/" + name + ".mp3";
-  var audio = new Audio(soundPath);
-  audio.play().catch(function () {});
-}
 
-function startOver() {
-  level = 0;
-  gamePattern = [];
-  started = false;
-  $("#difficulty-selector").fadeIn();
-}
+  function onSpeed(id) {
+    if (started) return;
+    gameSpeed = speeds[id] || speeds.easy;
+    selector.hidden = true;
+    started = true;
+    levelTitle.textContent = 'Get ready...';
+    nextSequence();
+  }
+
+  Object.keys(speeds).forEach((id) => {
+    document.getElementById(id).addEventListener('click', () => onSpeed(id));
+  });
+
+  buttonColours.forEach((colour) => {
+    document.getElementById(colour).addEventListener('click', () => onPad(colour));
+  });
+
+  // Keyboard: G, R, Y, B light the matching pad
+  document.addEventListener('keydown', (e) => {
+    const map = { g: 'green', r: 'red', y: 'yellow', b: 'blue' };
+    const colour = map[e.key.toLowerCase()];
+    if (colour && !e.ctrlKey && !e.metaKey && !e.altKey) onPad(colour);
+  });
+
+  updateBestRecordDisplay();
+})();

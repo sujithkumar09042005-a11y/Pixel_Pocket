@@ -1,389 +1,92 @@
-/* ==========================================================================
-   CYBER STACK (TETRIS) - CYBERPUNK HUD STYLES
-   ========================================================================== */
+/* Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. */
+/* Block Stack specific styles; shared look lives in toybox.css and games.css */
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    display: flex;
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 12px;
-    padding: 24px 16px;
-    position: relative;
-    overflow-x: hidden;
-}
-
-/* ── Top HUD Actions ───────────────────────────────────────────────── */
-.hud-top-actions {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    gap: 8px;
-    z-index: 1000;
-}
-
-.game-header-row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.85rem;
-    margin-bottom: 0.4rem;
-}
-
-.header-emblem-mini {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
-    display: inline-block;
-    border: 1.5px solid #ffd700;
-    box-shadow: 0 0 14px rgba(255, 215, 0, 0.5);
-    transition: transform 0.25s ease, filter 0.25s ease;
-}
-
-.header-emblem-mini:hover {
-    transform: scale(1.15);
-    filter: drop-shadow(0 0 10px #ffd700);
-}
-
-/* ── Title ─────────────────────────────────────────────────────────── */
-h1 {
-    font-family: var(--font-heading);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 900;
-    text-transform: uppercase;
-    color: #ffffff;
-    letter-spacing: 0.16em;
-    position: relative;
-    margin: 0.2rem 0;
-    text-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
-}
-
-h1 .highlight {
-    color: var(--cyber-accent);
-}
-
-/* ── Score Readout ─────────────────────────────────────────────────── */
-.score-bar-wrapper {
-    display: flex;
-    justify-content: center;
-}
-
-h2 {
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--cyber-accent);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: rgba(18, 18, 26, 0.9);
-    padding: 6px 18px;
-    border: 1px solid var(--cyber-border);
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
-    transition: color 0.3s ease, border-color 0.3s ease;
-}
-
-h2.score-pulse {
-    animation: defragPulse 0.35s ease-out;
-}
-
-@keyframes defragPulse {
-    0% { transform: scale(1); border-color: var(--cyber-border); }
-    50% { transform: scale(1.08); border-color: var(--cyber-accent); color: #ffffff; box-shadow: var(--box-shadow-neon); }
-    100% { transform: scale(1); border-color: var(--cyber-border); }
-}
-
-/* ── Main Tetris Layout (Board + Sidebar) ──────────────────────────── */
 .tetris-layout {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 16px;
-    max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 18px;
 }
 
-.game-container {
-    position: relative;
-    padding: 10px;
-    background: rgba(18, 18, 26, 0.85);
-    border: 2px solid var(--cyber-border);
-    box-shadow:
-        0 0 25px rgba(0, 255, 136, 0.2),
-        inset 0 0 25px rgba(0, 0, 0, 0.9);
-    transition: all 0.3s var(--ease-digital);
-}
+.game-container { position: relative; }
 
-.game-container:hover {
-    border-color: var(--cyber-accent);
-    box-shadow:
-        var(--box-shadow-neon),
-        inset 0 0 35px rgba(0, 255, 136, 0.15);
-}
-
-/* Canvas */
 #tetris {
-    display: block;
-    background: #0a0a0f;
-    transition: transform 0.1s ease;
+  display: block;
+  width: 240px;
+  height: 480px;
+  max-width: 100%;
+  background: var(--screen-bg);
+  border: 3px solid var(--screen-ink);
+  border-radius: 10px;
+  transition: transform 0.1s ease;
 }
 
-/* ── Sidebar ───────────────────────────────────────────────────────── */
 .tetris-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 110px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 112px;
 }
 
 .sidebar-box {
-    background: rgba(18, 18, 26, 0.9);
-    border: 1px solid var(--cyber-border);
-    padding: 10px 8px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  color: var(--screen-ink);
+  background: var(--screen-grid);
+  border: 3px solid var(--screen-ink);
+  border-radius: 14px;
 }
-
-.sidebar-title {
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    color: var(--cyber-muted-fg);
-    margin-bottom: 8px;
-}
-
-.sidebar-val {
-    font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: 800;
-}
+.sidebar-title { font: 700 0.9rem/1 var(--font-display); text-transform: uppercase; letter-spacing: 0.06em; }
+.sidebar-val { font: 700 1.8rem/1 var(--font-display); color: var(--c-pink); }
 
 .next-canvas-wrapper {
-    width: 80px;
-    height: 80px;
-    background: #0a0a0f;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  width: 80px;
+  height: 80px;
+  display: grid;
+  place-items: center;
+  background: var(--screen-bg);
+  border-radius: 10px;
 }
+#next-canvas { width: 80px; height: 80px; }
 
-#next-canvas {
-    display: block;
-    width: 80px;
-    height: 80px;
-}
+#score.score-pulse { animation: score-pop 0.3s var(--ease-boing); }
 
-/* ── Mobile Touch Controls ─────────────────────────────────────────── */
 .tetris-mobile-controls {
-    display: none;
-    gap: 10px;
-    margin-top: 4px;
-    justify-content: center;
-    width: 100%;
-    max-width: 320px;
+  grid-template-columns: repeat(5, 56px);
+  gap: 8px;
+  justify-content: center;
+  margin-top: 20px;
 }
+.tetris-mobile-controls .round-btn { width: 56px; height: 56px; font-size: 1.3rem; }
 
-@media (max-width: 768px), (hover: none) and (pointer: coarse) {
-    .tetris-mobile-controls {
-        display: flex;
-    }
-}
-
-.mobile-ctrl-btn {
-    flex: 1;
-    height: 46px;
-    background: rgba(18, 18, 26, 0.9);
-    border: 1px solid var(--cyber-accent);
-    color: var(--cyber-accent);
-    font-family: var(--font-heading);
-    font-size: 1.15rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    clip-path: var(--clip-chamfer-sm);
-    box-shadow: var(--box-shadow-neon-sm);
-    transition: all 0.1s ease;
-    touch-action: manipulation;
-}
-
-.mobile-ctrl-btn:active {
-    background: var(--cyber-accent);
-    color: var(--cyber-bg);
-    transform: scale(0.92);
-}
-
-/* Controls Legend */
-.controls-legend {
-    display: flex;
-    gap: 10px;
-    background: rgba(18, 18, 26, 0.7);
-    padding: 6px 14px;
-    border: 1px solid var(--cyber-border);
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--cyber-muted-fg);
-    letter-spacing: 0.1em;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-/* ── Game Over Modal Overlay ───────────────────────────────────────── */
+/* Game over card, added by script.js */
 .game-over {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(10, 10, 15, 0.97);
-    border: 2px solid var(--cyber-destructive);
-    box-shadow: 0 0 60px rgba(0, 0, 0, 0.9), var(--box-shadow-neon-destructive);
-    padding: 32px 38px;
-    z-index: 1000;
-    text-align: center;
-    animation: modalSlide 0.3s var(--ease-digital);
-    width: 90%;
-    max-width: 400px;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: min(90vw, 360px);
+  height: fit-content;
+  margin: auto;
+  padding: 24px;
+  text-align: center;
+  color: var(--ink);
+  background: var(--surface);
+  border: 4px solid var(--outline);
+  border-radius: 28px;
+  box-shadow: 0 10px 0 var(--edge), 0 0 0 100vmax rgba(20, 12, 40, 0.45), 0 24px 40px var(--shadow);
+  animation: pop-in 0.45s var(--ease-boing) both;
 }
+.game-over h2 { font: 700 2rem/1.1 var(--font-display); color: var(--c-pink); }
+.game-over p { margin: 6px 0; font-weight: 700; color: var(--ink-soft); }
+.game-over .final-score-text { margin-bottom: 14px; font: 700 1.4rem/1.2 var(--font-display); color: var(--ink); }
 
-@keyframes modalSlide {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -46%) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-}
-
-.game-over h2 {
-    font-family: var(--font-heading);
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--cyber-destructive);
-    letter-spacing: 0.12em;
-    margin-bottom: 8px;
-    background: none;
-    border: none;
-    box-shadow: none;
-    padding: 0;
-    text-shadow: 0 0 15px rgba(255, 51, 102, 0.8);
-}
-
-.game-over p {
-    font-family: var(--font-mono);
-    color: var(--cyber-muted-fg);
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    margin-bottom: 8px;
-}
-
-.final-score-text {
-    font-family: var(--font-heading) !important;
-    font-size: 1.1rem !important;
-    color: var(--cyber-accent) !important;
-    text-shadow: 0 0 10px rgba(0, 255, 136, 0.6);
-    margin-bottom: 20px !important;
-}
-
-/* Restart Button */
-.restart-btn {
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    padding: 11px 28px;
-    border: none;
-    cursor: pointer;
-    background: var(--cyber-accent);
-    color: var(--cyber-bg);
-    box-shadow: var(--box-shadow-neon);
-    transition: all 0.2s var(--ease-digital);
-}
-
-.restart-btn:hover {
-    background: #ffffff;
-    box-shadow: var(--box-shadow-neon-lg);
-    transform: translateY(-2px);
-}
-
-/* ── Responsive Adaptations ────────────────────────────────────────── */
-@media (max-width: 600px) {
-    body {
-        padding: 16px 10px;
-        gap: 8px;
-    }
-
-    .hud-top-actions {
-        top: 14px;
-        right: 14px;
-        gap: 6px;
-    }
-
-    .cyber-hud-back {
-        top: 14px;
-        left: 14px;
-        padding: 6px 12px;
-        font-size: 0.72rem;
-    }
-
-    h1 {
-        font-size: 1.6rem;
-        margin-top: 1.8rem;
-    }
-
-    .tetris-layout {
-        gap: 10px;
-    }
-
-    #tetris {
-        width: 200px !important;
-        height: 400px !important;
-    }
-
-    .tetris-sidebar {
-        width: 90px;
-    }
-
-    .next-canvas-wrapper {
-        width: 65px;
-        height: 65px;
-    }
-
-    #next-canvas {
-        width: 65px;
-        height: 65px;
-    }
-
-    .controls-legend {
-        font-size: 0.65rem;
-        gap: 6px;
-    }
-}
-
-@media (max-width: 360px) {
-    .tetris-layout {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .tetris-sidebar {
-        flex-direction: row;
-        width: 100%;
-        justify-content: center;
-    }
+@media (max-width: 520px) {
+  .tetris-layout { gap: 8px; }
+  .tetris-sidebar { min-width: 84px; }
+  .sidebar-box { padding: 6px; }
+  .next-canvas-wrapper, #next-canvas { width: 64px; height: 64px; }
+  #tetris { width: 200px; height: 400px; }
 }

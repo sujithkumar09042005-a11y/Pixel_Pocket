@@ -1,0 +1,165 @@
+/* Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. */
+/* Hub page: the console on the desk and the cartridge shelf */
+
+main { padding: 0 16px; }
+
+.hub-console { margin-top: 4px; margin-bottom: 0; padding-bottom: 38px; }
+
+.hub-screen {
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+.hub-screen h1 {
+  font: 700 clamp(1.8rem, 6vw, 2.8rem)/1.05 var(--font-display);
+  color: var(--accent, var(--c-pink));
+  transition: color 0.25s;
+}
+.hub-screen p { max-width: 46ch; color: var(--screen-soft); font-weight: 700; }
+.hub-screen .hub-record { color: var(--screen-ink); font-family: var(--font-display); }
+.hub-screen.swap h1,
+.hub-screen.swap p { animation: swap-in 0.3s var(--ease-boing); }
+@keyframes swap-in { from { transform: translateY(8px) scale(0.96); opacity: 0; } }
+
+.screen-faces { display: flex; gap: 12px; }
+.face {
+  position: relative;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--c-yellow);
+  border: 3px solid var(--screen-ink);
+  animation: bob 2.2s ease-in-out infinite;
+}
+.face::before, .face::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  width: 5px; height: 7px;
+  background: var(--screen-ink);
+  border-radius: 50%;
+}
+.face::before { left: 8px; }
+.face::after { right: 8px; }
+.face.f2 { background: var(--c-pink); animation-delay: -0.7s; }
+.face.f3 { background: var(--c-blue); animation-delay: -1.4s; }
+@keyframes bob { 50% { transform: translateY(-9px) rotate(6deg); } }
+
+/* The cartridge slot under the screen */
+.slot {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  width: min(60%, 300px);
+  height: 16px;
+  transform: translateX(-50%);
+  background: var(--bezel);
+  border: 3px solid var(--outline);
+  border-radius: 8px;
+  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.6);
+}
+.slot span {
+  position: absolute;
+  inset: 3px 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* -- Cartridge shelf -- */
+.shelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 22px;
+  width: min(100%, 1000px);
+  margin: 30px auto 0;
+  padding: 0 4px;
+}
+
+.cart {
+  --cart: var(--c-green);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 30px 14px 16px;
+  color: var(--ink);
+  text-decoration: none;
+  background: var(--cart);
+  border: 4px solid var(--outline);
+  border-radius: 14px 14px 22px 22px;
+  box-shadow: 0 8px 0 color-mix(in srgb, var(--cart) 65%, #000), 0 18px 24px var(--shadow);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s var(--ease-boing), box-shadow 0.25s;
+}
+.cart--green { --cart: var(--c-green); }
+.cart--pink { --cart: var(--c-pink); }
+.cart--blue { --cart: var(--c-blue); }
+.cart--yellow { --cart: var(--c-yellow); }
+
+/* Ridged grip across the top */
+.cart-grip {
+  position: absolute;
+  top: 8px; left: 50%;
+  width: 54%; height: 10px;
+  transform: translateX(-50%);
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.35) 0 4px, transparent 4px 10px);
+  border-radius: 4px;
+}
+
+.cart-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 8px 10px;
+  background: var(--surface);
+  border: 3px solid var(--outline);
+  border-radius: 10px;
+}
+.cart-art { width: 88px; height: 88px; transition: transform 0.4s var(--ease-boing); }
+.cart-name { font: 700 1.15rem/1.15 var(--font-display); text-align: center; color: var(--ink); }
+
+.cart:hover, .cart:focus-visible { transform: translateY(-12px) rotate(-1.2deg); }
+.cart:nth-child(even):hover, .cart:nth-child(even):focus-visible { transform: translateY(-12px) rotate(1.2deg); }
+.cart:hover .cart-art, .cart:focus-visible .cart-art { transform: scale(1.12) rotate(-6deg); }
+.cart:active { transform: translateY(-2px) scale(0.98); }
+
+/* Pushed into the slot: slide up toward the console */
+.cart.inserting {
+  z-index: 10;
+  animation: insert 0.55s cubic-bezier(0.5, 0, 0.7, 0.3) forwards;
+}
+@keyframes insert {
+  0% { transform: translateY(-12px); }
+  30% { transform: translateY(6px); }
+  100% { transform: translateY(-260px) scale(0.85); opacity: 0.2; }
+}
+
+kbd {
+  padding: 1px 8px;
+  font: 700 0.85em var(--font-display);
+  color: var(--ink);
+  background: var(--surface);
+  border: 2px solid var(--outline);
+  border-radius: 6px;
+  box-shadow: 0 2px 0 var(--edge);
+}
+
+@media (max-width: 520px) {
+  .shelf { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .cart { padding: 26px 8px 12px; }
+  .cart-art { width: 64px; height: 64px; }
+  .cart-name { font-size: 0.95rem; }
+  .site-foot p:first-child { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cart:hover, .cart:focus-visible, .cart:nth-child(even):hover, .cart:nth-child(even):focus-visible { transform: none; }
+  .face { animation: none; }
+}

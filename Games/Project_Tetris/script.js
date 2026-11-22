@@ -71,29 +71,19 @@ const SHAPES = [
     ]
 ];
 
-// Cyberpunk Neon Color Palette
-const COLORS = [
-    "rgba(10, 10, 15, 0.95)",   // Background (empty cell)
-    "#00ff88",                  // Matrix Green — I piece
-    "#ff00ff",                  // Hot Magenta — L piece
-    "#00d4ff",                  // Electric Cyan — J piece
-    "#ffe600",                  // Neon Yellow — S piece
-    "#a855f7",                  // Neon Violet — Z piece
-    "#ff6b00",                  // Cyber Orange — T piece
-    "#ff0055"                   // Crimson Pink — O piece
-];
+// Toy palette. Index 0 is the empty cell; the rest follow the light/dark theme.
+const COLORS = ["transparent", "", "", "", "", "", "", ""];
+const GLOW_COLORS = ["transparent", "", "", "", "", "", "", ""];
 
-// Cyberpunk Neon Glow Stacks
-const GLOW_COLORS = [
-    "transparent",
-    "rgba(0, 255, 136, 0.65)",  // Green glow
-    "rgba(255, 0, 255, 0.65)",  // Magenta glow
-    "rgba(0, 212, 255, 0.65)",  // Cyan glow
-    "rgba(255, 230, 0, 0.65)",  // Yellow glow
-    "rgba(168, 85, 247, 0.65)", // Violet glow
-    "rgba(255, 107, 0, 0.65)",  // Orange glow
-    "rgba(255, 0, 85, 0.65)"    // Crimson glow
-];
+function refreshColors() {
+    const pal = window.ToyBox.palette();
+    const list = [pal.green, pal.pink, pal.blue, pal.yellow, pal.purple, pal.orange, pal.red];
+    list.forEach((color, i) => {
+        COLORS[i + 1] = color;
+        GLOW_COLORS[i + 1] = color;
+    });
+}
+refreshColors();
 
 const ROWS = 20;
 const COLS = 10;
@@ -120,8 +110,7 @@ updateBestScoreUI();
 function renderNextPiece() {
     nextCtx.clearRect(0, 0, 4, 4);
 
-    // Subtle dark background
-    nextCtx.fillStyle = 'rgba(10, 10, 15, 0.9)';
+    nextCtx.fillStyle = window.ToyBox.palette().bg;
     nextCtx.fillRect(0, 0, 4, 4);
 
     if (!nextPieceObj) return;
@@ -144,8 +133,8 @@ function renderNextPiece() {
                 nextCtx.fillStyle = COLORS[colorIndex];
                 nextCtx.fillRect(px + padding, py + padding, blockSize - padding * 2, blockSize - padding * 2);
 
-                nextCtx.strokeStyle = '#ffffff';
-                nextCtx.lineWidth = 0.05;
+                nextCtx.strokeStyle = window.ToyBox.palette().ink;
+                nextCtx.lineWidth = 0.06;
                 nextCtx.strokeRect(px + padding, py + padding, blockSize - padding * 2, blockSize - padding * 2);
             }
         }
@@ -159,12 +148,12 @@ function togglePause() {
     if (isPaused) {
         clearInterval(gameInterval);
         if (pauseOverlay) pauseOverlay.style.display = 'flex';
-        if (pauseBtn) pauseBtn.textContent = '[RESUME: P]';
+        if (pauseBtn) pauseBtn.textContent = 'Resume';
         if (window.CyberSystem && window.CyberSystem.Audio) window.CyberSystem.Audio.playAlert();
     } else {
         gameInterval = setInterval(newGameState, gameSpeed);
         if (pauseOverlay) pauseOverlay.style.display = 'none';
-        if (pauseBtn) pauseBtn.textContent = '[PAUSE: P]';
+        if (pauseBtn) pauseBtn.textContent = 'Pause';
         if (window.CyberSystem && window.CyberSystem.Audio) window.CyberSystem.Audio.playClick();
     }
 }
@@ -242,7 +231,7 @@ function flashLine(lineIndex) {
 }
 
 function updateScore() {
-    scoreboard.innerHTML = "DEFRAG_SCORE: " + score;
+    scoreboard.textContent = "Score: " + score;
     scoreboard.classList.remove('score-pulse');
     void scoreboard.offsetWidth;
     scoreboard.classList.add('score-pulse');
@@ -364,17 +353,20 @@ function showGameOver() {
 
     setTimeout(() => {
         const overlay = document.createElement('div');
-        overlay.className = 'game-over cyber-chamfer';
+        overlay.className = 'game-over';
         overlay.id = 'game-over-overlay';
+        overlay.setAttribute('role', 'alertdialog');
+        overlay.setAttribute('aria-label', 'Game over');
         overlay.innerHTML = `
-            <div class="cyber-badge" style="margin-bottom: 1rem;">FATAL CORRUPTION</div>
-            <h2>SYSTEM OVERLOAD</h2>
-            <p>&gt; DEFRAG BUFFER OVERFLOW</p>
-            <p class="final-score-text">FINAL SCORE: [${score}]</p>
-            <button class="restart-btn cyber-chamfer-sm" id="restart-btn">&gt; REBOOT CORE</button>
+            <h2>Whoops! Tower's full</h2>
+            <p>The blocks reached the top.</p>
+            <p class="final-score-text">Score: ${score}</p>
+            <button class="toy-btn" id="restart-btn">Play again</button>
         `;
         document.body.appendChild(overlay);
-        document.getElementById('restart-btn').addEventListener('click', restartGame);
+        const again = document.getElementById('restart-btn');
+        again.addEventListener('click', restartGame);
+        again.focus();
     }, 400);
 }
 
@@ -395,9 +387,9 @@ function restartGame() {
     isPaused = false;
 
     if (pauseOverlay) pauseOverlay.style.display = 'none';
-    if (pauseBtn) pauseBtn.textContent = '[PAUSE: P]';
+    if (pauseBtn) pauseBtn.textContent = 'Pause';
 
-    scoreboard.innerHTML = "DEFRAG_SCORE: 0";
+    scoreboard.textContent = "Score: 0";
 
     clearInterval(gameInterval);
     gameInterval = setInterval(newGameState, gameSpeed);
@@ -468,14 +460,18 @@ function collision(x, y, rotatedPiece) {
 }
 
 function renderGame() {
+    const pal = window.ToyBox.palette();
     ctx.clearRect(0, 0, COLS, ROWS);
+
+    ctx.fillStyle = pal.bg;
+    ctx.fillRect(0, 0, COLS, ROWS);
 
     for (let i = 0; i < ROWS; i++) {
         for (let j = 0; j < COLS; j++) {
-            ctx.fillStyle = (i + j) % 2 === 0
-                ? 'rgba(10, 10, 15, 0.95)'
-                : 'rgba(18, 18, 26, 0.95)';
-            ctx.fillRect(j, i, 1, 1);
+            if ((i + j) % 2 === 0) {
+                ctx.fillStyle = pal.grid;
+                ctx.fillRect(j, i, 1, 1);
+            }
 
             if (grid[i][j] !== 0) {
                 drawBlock(j, i, grid[i][j], false);
@@ -565,20 +561,12 @@ if (ctrlHard) ctrlHard.addEventListener("click", () => hardDrop());
 if (pauseBtn) pauseBtn.addEventListener("click", () => togglePause());
 if (pauseOverlay) pauseOverlay.addEventListener("click", () => togglePause());
 
-// Wire up HUD toggles
-const audioBtn = document.getElementById('hud-audio-toggle');
-if (audioBtn && window.CyberSystem) {
-    audioBtn.addEventListener('click', () => {
-        window.CyberSystem.Audio.toggleMute();
-    });
-}
-
-const crtBtn = document.getElementById('hud-crt-toggle');
-if (crtBtn && window.CyberSystem) {
-    crtBtn.addEventListener('click', () => {
-        window.CyberSystem.CRT.toggle();
-    });
-}
+// Repaint with the new palette when the theme changes
+window.addEventListener('toybox:themechange', () => {
+    refreshColors();
+    renderNextPiece();
+    renderGame();
+});
 
 // Shake animation
 const style = document.createElement('style');
