@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 // Hub cartridge thumbnails: the same characters used inside the games, drawn on a 96x96 canvas.
 (function () {
   var P = window.PP, R = P.rr, C = P.circ, E = P.ell, B = P.block;

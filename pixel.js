@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 // Pixel Pocket shared helpers: theme, sound, best scores, pixel blocks, particles (window.PP)
 (function () {
   var S = {
@@ -191,6 +190,56 @@
   var GAMES = [['snake', 'Snake'], ['blocks', 'Block Stack'], ['2048', '2048'], ['breakout', 'Breakout'], ['mines', 'Minesweeper'], ['flappy', 'Flappy Hop'], ['invaders', 'Space Invaders'], ['runner', 'Pixel Runner'], ['memory', 'Memory Match'], ['whack', 'Whack-a-Mole']];
   var ACC = { snake: '#8cff5a', blocks: '#35e0ff', '2048': '#ffd23f', breakout: '#ff4f8b', mines: '#ff9442', flappy: '#7fd8ff', invaders: '#d44fff', runner: '#ff7a5a', memory: '#8a6bff', whack: '#b5733a' };
   PP.games = GAMES; PP.accent = ACC;
+
+  // ---- keyboard layer (shared by every page) ----
+  function isAction(t) { return !!(t && t.tagName && (t.tagName === 'BUTTON' || t.tagName === 'A' || (t.getAttribute && t.getAttribute('role') === 'switch'))); }
+  window.addEventListener('keydown', function (e) {
+    var t = e.target;
+    // Space/Enter on a focused button or link must activate it, not reach the game's key handler
+    if ((e.key === ' ' || e.key === 'Enter') && isAction(t)) { e.stopPropagation(); return; }
+    // R restarts the current game from anywhere
+    if ((e.key === 'r' || e.key === 'R') && !e.ctrlKey && !e.metaKey && !e.altKey && !(t && /INPUT|TEXTAREA|SELECT/.test(t.tagName || ''))) {
+      var b = document.getElementById('again'); if (b && typeof b.click === 'function') { e.preventDefault(); b.click(); }
+    }
+  }, true);
+  var sr = null;
+  PP.say = function (text) { // screen-reader announcement
+    try {
+      if (!sr) { sr = document.createElement('div'); sr.className = 'sr'; sr.setAttribute('role', 'status'); sr.setAttribute('aria-live', 'polite'); document.body.appendChild(sr); }
+      sr.textContent = ''; setTimeout(function () { sr.textContent = text; }, 30);
+    } catch (e) { }
+  };
+  document.addEventListener('DOMContentLoaded', function () {
+    var cv = document.getElementById('cv'), ov = document.getElementById('ov'), st = document.getElementById('start'), help = document.querySelector('.help'), ft = null;
+    if (cv) { cv.tabIndex = 0; if (help) { help.id = 'help'; cv.setAttribute('aria-describedby', 'help'); } }
+    function sync() {
+      clearTimeout(ft);
+      if (!ov.hidden) {
+        // focus the overlay button after a short delay so a player still mashing keys does not trigger it by accident
+        ft = setTimeout(function () { if (!ov.hidden && st && st.offsetParent !== null) st.focus({ preventScroll: true }); }, 450);
+      } else if (st && document.activeElement === st && cv) cv.focus({ preventScroll: true });
+    }
+    if (ov && window.MutationObserver) { new MutationObserver(sync).observe(ov, { attributes: true, attributeFilter: ['hidden'] }); sync(); }
+    // hub: arrow keys move between cartridges
+    var carts = document.getElementById('carts');
+    if (carts) {
+      var list = [].slice.call(carts.querySelectorAll('.cart')), D = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+      document.addEventListener('keydown', function (e) {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        var cur = document.activeElement && document.activeElement.closest ? document.activeElement.closest('.cart') : null;
+        if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); list[e.key === 'Home' ? 0 : list.length - 1].focus(); return; }
+        var d = D[e.key]; if (!d) return;
+        if (!cur) { if (document.activeElement === document.body) { e.preventDefault(); list[0].focus(); } return; }
+        var a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2, best = null, bs = 1e9;
+        list.forEach(function (o) {
+          if (o === cur) return; var r = o.getBoundingClientRect(), dx = r.left + r.width / 2 - ax, dy = r.top + r.height / 2 - ay, s;
+          if (d[0]) { if (dx * d[0] < 4 || Math.abs(dy) > a.height * .6) return; s = Math.abs(dx); } else { if (dy * d[1] < 4 || Math.abs(dx) > a.width * 1.2) return; s = Math.abs(dy) + Math.abs(dx) * .5; }
+          if (s < bs) { bs = s; best = o; }
+        });
+        if (best) { e.preventDefault(); best.focus(); }
+      });
+    }
+  });
   document.addEventListener('DOMContentLoaded', function () {
     var m0 = location.pathname.match(/Games\/([^\/]+)\//), hh = document.querySelector('.handheld');
     if (m0 && hh) {

@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 // Detailed characters and props shared by the games and the hub thumbnails (PP.chars, PP.props)
 (function () {
   var P = window.PP, mix = P.mix, R = P.rr, C = P.circ, E = P.ell;

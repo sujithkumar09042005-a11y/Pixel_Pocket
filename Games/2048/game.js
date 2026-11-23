@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 (function () {
   var $ = function (i) { return document.getElementById(i); };
   var cv = PP.hd($('cv')), g = cv.getContext('2d'), N = 4, GAP = 10, S = (cv.lw - GAP * (N + 1)) / N;
@@ -52,7 +51,7 @@
   function check() {
     var has = grid.some(function (r) { return r.indexOf(2048) >= 0; });
     if (has && !won) { won = true; PP.sfx('win'); banner('You made 2048!', 'Keep going or start over'); }
-    else if (!can()) { over = true; PP.sfx('lose'); banner('No moves left', 'Score ' + score); }
+    else if (!can()) { over = true; PP.sfx('lose'); PP.say('No moves left. Score ' + score); banner('No moves left', 'Score ' + score + '. Press Enter or R'); }
   }
   function banner(t, p) { $('ov-t').textContent = t; $('ov-p').textContent = p; $('ov').hidden = false; if (!over) setTimeout(function () { $('ov').hidden = true; }, 1800); }
   function draw() { }
@@ -74,7 +73,7 @@
     }
   }
   var keys = { ArrowLeft: 0, a: 0, ArrowUp: 1, w: 1, ArrowRight: 2, d: 2, ArrowDown: 3, s: 3 };
-  addEventListener('keydown', function (e) { if (e.key in keys) { e.preventDefault(); move(keys[e.key]); } });
+  addEventListener('keydown', function (e) { if (e.ctrlKey || e.metaKey || e.altKey) return; if (e.key in keys) { e.preventDefault(); move(keys[e.key]); } else if (over && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); reset(); } });
   document.querySelectorAll('.pad .btn').forEach(function (b) { b.addEventListener('click', function () { move(keys[b.dataset.k]); }); });
   var tx, ty;
   cv.addEventListener('touchstart', function (e) { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });

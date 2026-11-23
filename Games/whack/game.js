@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 (function () {
   var $ = function (i) { return document.getElementById(i); };
   var cv = PP.hd($('cv')), g = cv.getContext('2d'), W = cv.lw, N = 3, CS = W / N;
@@ -50,24 +49,39 @@
       }
       g.restore();
       PP.props.moundFront(g, cx, cy);
+      var kd = 7 + i % N - 3 * (i / N | 0); PP.rr(g, cx - 12, cy + 24, 24, 20, 7, 'rgba(10,6,24,.72)', 'rgba(255,255,255,.55)', 1.5); g.font = '800 14px ' + PP.font; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff4d6'; g.fillText(kd, cx, cy + 34.5);
     });
     if (hammer.t < 12) { var q = Math.min(1, hammer.t / 8); g.save(); g.translate(hammer.x + 6, hammer.y + 8); g.rotate(-.9 + q * 1.1); g.globalAlpha = 1 - hammer.t / 14; PP.props.hammer(g); g.restore(); g.globalAlpha = 1; }
+  }
+  function hitHole(i) {
+    var h = holes[i]; if (!h.k || h.hit || popAmt(h) <= .35) return false;
+    var cx = (i % N) * CS + CS / 2, cy = ((i / N | 0) * CS) + CS / 2 + 22;
+        h.hit = 1;
+        if (h.k === 'bomb') { score = Math.max(0, score - 5); left = Math.max(1, left - 3); $('tm').textContent = left; combo = 0; PP.sfx('boom'); PP.shake(10); PP.burst(cx, cy - 20, '#ff9442', 24, 6); PP.pop('-5 -3s', cx, cy - 60, '#ff4f5a'); }
+        else { combo++; var pts = (h.k === 'gold' ? 5 : 1) * (1 + Math.min(4, combo / 3 | 0)); score += pts; PP.sfx('whack'); PP.burst(cx, cy - 20, h.k === 'gold' ? '#ffd23f' : '#b5733a', 12, 4); PP.pop('+' + pts + (combo >= 3 ? ' x' + (1 + Math.min(4, combo / 3 | 0)) : ''), cx, cy - 60); PP.shake(2); }
+        $('sc').textContent = score; if (PP.setBest('whack', score)) $('bs').textContent = score;
+    return true;
   }
   function whack(e) {
     if (state !== 'run') return;
     var r = cv.getBoundingClientRect(), mx = (e.clientX - r.left) / r.width * W, my = (e.clientY - r.top) / r.height * W;
     hammer = { x: mx, y: my, t: 0 };
     for (var i = 0; i < 9; i++) {
-      var h = holes[i]; if (!h.k || h.hit) continue; var cx = (i % N) * CS + CS / 2, cy = ((i / N | 0) * CS) + CS / 2 + 22;
-      if (Math.abs(mx - cx) < 46 && my > cy - 70 && my < cy + 14 && popAmt(h) > .35) {
-        h.hit = 1;
-        if (h.k === 'bomb') { score = Math.max(0, score - 5); left = Math.max(1, left - 3); $('tm').textContent = left; combo = 0; PP.sfx('boom'); PP.shake(10); PP.burst(cx, cy - 20, '#ff9442', 24, 6); PP.pop('-5 -3s', cx, cy - 60, '#ff4f5a'); }
-        else { combo++; var pts = (h.k === 'gold' ? 5 : 1) * (1 + Math.min(4, combo / 3 | 0)); score += pts; PP.sfx('whack'); PP.burst(cx, cy - 20, h.k === 'gold' ? '#ffd23f' : '#b5733a', 12, 4); PP.pop('+' + pts + (combo >= 3 ? ' x' + (1 + Math.min(4, combo / 3 | 0)) : ''), cx, cy - 60); PP.shake(2); }
-        $('sc').textContent = score; if (PP.setBest('whack', score)) $('bs').textContent = score; return;
-      }
+      var cx = (i % N) * CS + CS / 2, cy = ((i / N | 0) * CS) + CS / 2 + 22;
+      if (Math.abs(mx - cx) < 46 && my > cy - 70 && my < cy + 14 && hitHole(i)) return;
     }
     combo = 0;
   }
+  // keyboard: number keys laid out like the holes (7 8 9 / 4 5 6 / 1 2 3), numpad or number row
+  addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return;
+    var m = /^(?:Numpad|Digit)([1-9])$/.exec(e.code || ''), d = m ? +m[1] : (/^[1-9]$/.test(e.key) ? +e.key : 0);
+    if (!d || state !== 'run') return;
+    e.preventDefault();
+    var i = (2 - ((d - 1) / 3 | 0)) * 3 + (d - 1) % 3, cx = (i % N) * CS + CS / 2, cy = ((i / N | 0) * CS) + CS / 2 + 22;
+    hammer = { x: cx, y: cy - 24, t: 0 };
+    if (!hitHole(i)) combo = 0;
+  });
   cv.addEventListener('pointerdown', function (e) { e.preventDefault(); whack(e); });
   $('start').addEventListener('click', function () { if (state === 'over') reset(); begin(); });
   $('again').addEventListener('click', function () { reset(); });

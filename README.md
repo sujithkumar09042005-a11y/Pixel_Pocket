@@ -39,5 +39,3 @@ dev_server.py     Local no-cache server on port 8000
 ```
 
 Run locally: `python3 dev_server.py`, then open http://localhost:8000.
-
-Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.

@@ -1,4 +1,3 @@
-// Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.
 (function () {
   var $ = function (i) { return document.getElementById(i); };
   var cv = PP.hd($('cv')), g = cv.getContext('2d'), W = cv.lw, H = cv.lh;
