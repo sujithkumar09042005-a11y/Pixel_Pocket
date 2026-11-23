@@ -1,49 +1,43 @@
-# Toy Box Arcade
+# Pixel Pocket
 
-A playroom of four quick browser games on a chunky toy console. Built with plain HTML, CSS and JavaScript, with no build step and no dependencies. It has a light (day) theme and a dark (night) theme.
+A pocket-sized arcade of ten quick browser games with a retro handheld pixel look. Plain HTML, CSS and JavaScript. No build step, no dependencies.
 
 ## Games
 
-| Game | Folder | What it is |
+| Game | Folder | Controls |
 |---|---|---|
-| Simon Says | `Games/Project_Memory/` | Watch the pads light up, then repeat the pattern. Three speeds. Keys G, R, Y, B also work. |
-| Rock Paper Scissors | `Games/Project_RPS/` | Beat the robot in a best-of-1, 3 or 5 and build a streak. |
-| Snake | `Games/Project_Snake/` | Eat snacks, avoid your tail. Arrow keys or WASD, swipe or on-screen pad on touch. |
-| Block Stack | `Games/Project_Tetris/` | Spin and drop falling blocks to clear lines. |
+| Snake | `Games/snake/` | Arrows or WASD, swipe, on-screen pad. P pauses. |
+| Block Stack | `Games/blocks/` | Arrows, Space to hard drop, on-screen buttons. P pauses. |
+| 2048 | `Games/2048/` | Arrows or WASD, swipe. |
+| Breakout | `Games/breakout/` | Mouse, touch or Left/Right. Space or tap to launch. |
+| Minesweeper | `Games/mines/` | Click to dig, right-click or F (flag mode) to flag, long-press on touch. |
+| Flappy Hop | `Games/flappy/` | Tap, click, Space or Up. |
+| Space Invaders | `Games/invaders/` | Left/Right + Space; drag to move on touch (auto-fire). |
+| Pixel Runner | `Games/runner/` | Space/Up/tap to jump (hold = higher), Down to duck. |
+| Memory Match | `Games/memory/` | Click or tap cards. |
+| Whack-a-Mole | `Games/whack/` | Click or tap moles; avoid bombs. |
 
-Best scores are saved in the browser (`localStorage`) and shown on each cartridge on the hub.
+Best scores are kept in `localStorage` and shown on the hub cartridges.
 
 ## Design
 
-- **Toy console:** every game sits inside a chunky console with a bezel, screen and squishy buttons. The hub is a shelf of cartridges that slide into the console slot.
-- **Light and dark themes:** the switch in the top bar sets `data-theme` on `<html>` and is remembered. Until you choose, the site follows your system setting. Game canvases repaint with the theme.
-- **Console color:** the paint button on the hub cycles tomato, sky, mint, grape and lemon.
-- **Sound:** small synthesized pops and jingles through the Web Audio API, with a mute button.
-- **Accessibility:** keyboard focus rings, a skip link, real buttons for every control, labelled toggles, and `prefers-reduced-motion` support.
+- Lively: bevelled pixel blocks, particle bursts, screen shake, floating score pops, drifting pixel background, CRT scanlines and bouncing cartridges.
+- Pixel Pocket: chunky outlines, hard offset shadows, stepped animation, monospace type and a bright arcade palette.
+- Night (default dark) and Day themes, remembered between visits; canvases repaint on switch.
+- Synthesized sound effects via Web Audio, with a mute button.
+- Keyboard focus rings, skip links, `prefers-reduced-motion` support.
 
-## Project layout
-
-```
-index.html, hub.css, hub.js     Hub page
-toybox.css                      Design tokens (light/dark), buttons, console, overlays
-toybox.js                       Audio, records, theme and shell color (window.ToyBox)
-games.css                       Pieces shared by the game pages
-assets/icons.svg                Icon and cartridge art sprite
-fonts/                          Self-hosted Fredoka and Nunito (woff2)
-Games/Project_*/                One folder per game
-dev_server.py                   Local no-cache server
-```
-
-## Run locally
+## Layout
 
 ```
-python3 dev_server.py
+index.html        Hub
+pixel.css         Shared design system
+pixel.js          Theme, sound, best scores (window.PP)
+art.js          Hub cartridge thumbnails (same characters as the games)
+Games/<game>/     index.html + game.js per game
+dev_server.py     Local no-cache server on port 8000
 ```
 
-Then open http://localhost:8000.
-
-## Credits
-
-Fonts: Fredoka and Nunito, licensed under the SIL Open Font License.
+Run locally: `python3 dev_server.py`, then open http://localhost:8000.
 
 Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved. -->
+<html lang="en" data-mode="night">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Breakout - a quick game in Pixel Pocket.">
+  <title>Breakout | Pixel Pocket</title>
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../pixel.css">
+</head>
+<body>
+  <a class="skip" href="#cv">Skip to game</a>
+  <header class="bar">
+    <a class="btn alt" href="../../index.html">&lt; Menu</a>
+    <div class="bar-r"><button class="tgl" id="sound-btn" type="button" role="switch" aria-checked="true" aria-label="Sound"><span class="tgl-label">Sound</span><span class="tgl-track"><span class="tgl-knob"><svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M16 9l5 6M21 9l-5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></span></button><button class="tgl" id="mode-btn" type="button" role="switch" aria-checked="true" aria-label="Night mode"><span class="tgl-label">Theme</span><span class="tgl-track"><span class="tgl-knob"><svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="currentColor"/></svg><svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></span></button></div>
+  </header>
+  <main>
+    <section class="handheld" style="--w:560px" aria-label="Breakout">
+      <div class="hh-top"><h1 class="tag" style="margin:0;font-size:13px"><span class="led"></span>Breakout</h1><div class="hud"><span>Score <b id="sc">0</b></span><span>Lives <b id="lv">3</b></span><span>Best <b id="bs">0</b></span></div></div>
+      <div class="screen">
+        <canvas id="cv" width="480" height="560" role="img" aria-label="Breakout board"></canvas>
+        <div class="overlay" id="ov"><h2 id="ov-t">Breakout</h2><p id="ov-p">Tap Start</p><button class="btn" id="start" type="button">Start</button></div>
+      </div>
+      <div class="hh-foot"><button class="btn alt" id="pause" type="button">Pause</button><button class="btn" id="again" type="button">Restart</button></div>
+      <p class="help">Mouse, touch or Left/Right keys move the paddle. Space or tap launches.</p>
+    </section>
+  </main>
+  <footer class="foot">Copyright (c) 2026 ReLU Technologies Private Limited. All rights reserved.</footer>
+  <script src="../../pixel.js"></script>
+  <script src="../../props.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
