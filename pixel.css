@@ -206,3 +206,9 @@ body { background-image: none; image-rendering: auto; }
 .screen canvas:focus-visible { outline: 4px solid var(--c, var(--accent)); outline-offset: -6px; }
 .kbd-hint { margin: 10px auto 0; font-size: 13px; color: var(--dim); }
 .kbd-hint kbd { font: inherit; font-size: 11px; font-weight: 800; padding: 2px 7px; border: 2px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--ink); box-shadow: 0 2px 0 var(--line); }
+
+html { scroll-padding-top: 84px; scroll-padding-bottom: 20px; }
+
+.screen canvas { max-width: 100%; }
+.handheld { max-width: calc(100vw - 20px); }
+.handheld { min-width: min(340px, calc(100vw - 20px)); }

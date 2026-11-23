@@ -91,7 +91,15 @@
     night: function () { return document.documentElement.dataset.mode !== 'day'; },
     mix: mix, path: path,
     // set a canvas up for crisp, smooth drawing; logical size stays cv.lw x cv.lh
-    hd: function (cv) { cv.lw = cv.width; cv.lh = cv.height; cv.width = cv.lw * SC; cv.height = cv.lh * SC; cv._S = SC; cv.style.width = cv.lw + 'px'; return cv; },
+    hd: function (cv) { cv.lw = cv.width; cv.lh = cv.height; cv.width = cv.lw * SC; cv.height = cv.lh * SC; cv._S = SC; cv.style.width = cv.lw + 'px';
+      // fit the board to the window: never wider than its box, never taller than the visible area
+      function fit() {
+        var box = cv.parentNode, chrome = innerWidth < 700 ? 330 : innerHeight < 500 ? 215 : 305, availW = Math.max(160, Math.min(cv.lw, (box ? box.clientWidth || cv.lw : cv.lw)));
+        var availH = Math.max(220, innerHeight - chrome), k = Math.min(1, availW / cv.lw, availH / cv.lh);
+        cv.style.width = Math.floor(cv.lw * k) + 'px'; cv.style.height = Math.floor(cv.lh * k) + 'px';
+      }
+      fit(); var rt; addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(fit, 80); }); addEventListener('orientationchange', function () { setTimeout(fit, 200); });
+      return cv; },
     // glossy rounded block (cached sprite)
     block: function (g, x, y, w, h, col, r) {
       w = Math.max(3, Math.round(w)); h = Math.max(3, Math.round(h)); r = Math.min(r === undefined ? Math.min(w, h) * .26 : r * 1.4, w / 2, h / 2);
@@ -220,24 +228,44 @@
       } else if (st && document.activeElement === st && cv) cv.focus({ preventScroll: true });
     }
     if (ov && window.MutationObserver) { new MutationObserver(sync).observe(ov, { attributes: true, attributeFilter: ['hidden'] }); sync(); }
-    // hub: arrow keys move between cartridges
+    // hub: arrow keys move between the top-bar switches and the cartridges
     var carts = document.getElementById('carts');
     if (carts) {
-      var list = [].slice.call(carts.querySelectorAll('.cart')), D = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+      var list = [].slice.call(carts.querySelectorAll('.cart')), tops = ['sound-btn', 'mode-btn'].map(function (i) { return document.getElementById(i); }).filter(Boolean);
+      var D = { ArrowRight: [1, 0], ArrowLeft: [-1, 0], ArrowDown: [0, 1], ArrowUp: [0, -1] };
+      function show(el) {
+        el.focus({ preventScroll: true });
+        var r = el.getBoundingClientRect(), bar = document.querySelector('.bar'), top = bar ? bar.getBoundingClientRect().bottom + 12 : 12;
+        if (list.indexOf(el) >= 0 && list.every(function (o) { return o.getBoundingClientRect().top >= r.top - 4 || o === el; }) && el === list[0] || (list.indexOf(el) < 0)) { window.scrollTo(0, 0); return; }
+        if (r.top < top) window.scrollBy(0, r.top - top); else if (r.bottom > innerHeight - 12) window.scrollBy(0, r.bottom - innerHeight + 12);
+      }
+      function firstRow() { var t = list[0].getBoundingClientRect().top; return list.filter(function (o) { return Math.abs(o.getBoundingClientRect().top - t) < 8; }); }
       document.addEventListener('keydown', function (e) {
-        if (e.ctrlKey || e.metaKey || e.altKey) return;
-        var cur = document.activeElement && document.activeElement.closest ? document.activeElement.closest('.cart') : null;
-        if (e.key === 'Home' || e.key === 'End') { e.preventDefault(); list[e.key === 'Home' ? 0 : list.length - 1].focus(); return; }
+        if (e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+        var ae = document.activeElement, cur = ae && ae.closest ? ae.closest('.cart') : null, ti = tops.indexOf(ae);
+        if (e.key === 'Home' || e.key === 'End') { if (ti >= 0 || cur || ae === document.body) { e.preventDefault(); show(list[e.key === 'Home' ? 0 : list.length - 1]); } return; }
         var d = D[e.key]; if (!d) return;
-        if (!cur) { if (document.activeElement === document.body) { e.preventDefault(); list[0].focus(); } return; }
+        if (ti >= 0) { // top-bar switches
+          e.preventDefault();
+          if (d[1] > 0) show(list[0]); else if (d[0]) { var n = ti + d[0]; if (n >= 0 && n < tops.length) show(tops[n]); }
+          return;
+        }
+        if (!cur) { if (ae === document.body || ae === document.documentElement) { e.preventDefault(); show(list[0]); } return; }
         var a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2, best = null, bs = 1e9;
         list.forEach(function (o) {
-          if (o === cur) return; var r = o.getBoundingClientRect(), dx = r.left + r.width / 2 - ax, dy = r.top + r.height / 2 - ay, s;
-          if (d[0]) { if (dx * d[0] < 4 || Math.abs(dy) > a.height * .6) return; s = Math.abs(dx); } else { if (dy * d[1] < 4 || Math.abs(dx) > a.width * 1.2) return; s = Math.abs(dy) + Math.abs(dx) * .5; }
-          if (s < bs) { bs = s; best = o; }
+          if (o === cur) return; var r = o.getBoundingClientRect(), dx = r.left + r.width / 2 - ax, dy = r.top + r.height / 2 - ay, sc;
+          if (d[0]) { if (dx * d[0] < 4 || Math.abs(dy) > a.height * .6) return; sc = Math.abs(dx); } else { if (dy * d[1] < 4 || Math.abs(dx) > a.width * 1.2) return; sc = Math.abs(dy) + Math.abs(dx) * .5; }
+          if (sc < bs) { bs = sc; best = o; }
         });
-        if (best) { e.preventDefault(); best.focus(); }
+        e.preventDefault();
+        if (best) show(best);
+        else if (d[0]) { var ni = list.indexOf(cur) + d[0]; if (ni >= 0 && ni < list.length) show(list[ni]); }
+        else if (d[1] < 0 && firstRow().indexOf(cur) >= 0 && tops.length) show(tops[tops.length - 1]); // up from the first row -> switches
       });
+      list.forEach(function (c) { c.addEventListener('focus', function () { try { sessionStorage.setItem('pp_last', c.dataset.g); } catch (x) { } }); });
+      // coming back from a game: put focus on the cartridge you just played
+      try { var last = sessionStorage.getItem('pp_last'); var nav = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || {}; if (last && (nav.type === 'back_forward' || /\/Games\//.test(document.referrer))) { var lc = list.filter(function (c) { return c.dataset.g === last; })[0]; if (lc) setTimeout(function () { lc.focus({ preventScroll: true }); lc.scrollIntoView({ block: 'center' }); }, 60); } } catch (x) { }
+      window.addEventListener('pageshow', function (ev) { if (ev.persisted) { try { var l2 = sessionStorage.getItem('pp_last'), c2 = list.filter(function (c) { return c.dataset.g === l2; })[0]; if (c2) c2.focus({ preventScroll: true }); } catch (x) { } } });
     }
   });
   document.addEventListener('DOMContentLoaded', function () {
